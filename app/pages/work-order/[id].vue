@@ -55,7 +55,7 @@
         </template>
         <template #body>
 
-            <UCard variant="subtle">
+            <UCard variant="subtle" :ui="{ root: 'rounded-lg overflow-y-auto' }">
                 <template #header>
                     <div>
                         <h2 class="text-lg">Work Order ID: <span class="font-extrabold">{{ workOrderId }}</span></h2>
@@ -69,7 +69,7 @@
                         class="border rounded-md p-6 my-4 border-neutral-800"
                     />
                     <div v-if="!isLoading">
-                        <UCard :ui="{ root: 'rounded-lg overflow-y-auto' }">
+                        <UCard>
                             <template #default>
                                 <UForm
                                     id="settings"
