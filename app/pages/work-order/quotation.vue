@@ -68,7 +68,7 @@
         </template>
 
         <template #body>
-            <UCard>
+            <UCard :ui="{ root: 'rounded-lg overflow-y-auto' }">
                 <template #header>
                     <div>
                         <h2 class="text-lg">Quotation Details</h2>
