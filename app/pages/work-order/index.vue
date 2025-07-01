@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { TableColumn } from '@nuxt/ui'
 import { upperFirst } from 'scule'
 import { getPaginationRowModel, type Row } from '@tanstack/table-core'
 import type { User } from '~/types'
+import type { TableColumn, TableRow } from '@nuxt/ui/runtime/components/Table.vue.js';
 
-const UAvatar = resolveComponent('UAvatar')
+// const UAvatar = resolveComponent('UAvatar')
 const UButton = resolveComponent('UButton')
 const UBadge = resolveComponent('UBadge')
 const UDropdownMenu = resolveComponent('UDropdownMenu')
@@ -12,37 +12,107 @@ const UCheckbox = resolveComponent('UCheckbox')
 
 const toast = useToast()
 const table = useTemplateRef('table')
-setTimeout(() => {
-  console.log('table', table?.value?.tableApi)
-  console.log('table', table?.value?.tableApi?.getColumn('email'))
-  console.log('table', table?.value?.tableApi?.getColumn('email')?.getFilterValue() as string)
-}, 3000)
+const isLoading = ref<boolean>(true)
+const search = ref('')
+const workOrderData = ref<any>()
 
-const columnFilters = ref([{
-  id: 'email',
-  value: ''
-}])
-const columnVisibility = ref()
-const rowSelection = ref({ 1: true })
-
-const { data, status } = await useFetch<User[]>('/api/customers', {
-  lazy: true
+onMounted(async () => {
+  const { response } = await fetchWorkOrder()
+  console.log(response)
+  workOrderData.value = response?.data
+  isLoading.value = false
+  console.log(workOrderData.value)
+  console.log('table ', table.value?.tableApi?.getColumn('WorkOrder'))
+  const  WOStatus = workOrderData.value.map((item: User) => item.WOStatus)
+  console.log('WOStatus:', WOStatus)
+  const uniqueArray = [...new Set(WOStatus)]; 
+  console.log('Unique WOStatus:', uniqueArray)
 })
 
-function getRowItems(row: Row<User>) {
+async function fetchWorkOrder() {
+  isLoading.value = true
+
+  const today = new Date();
+  const dateAfter = new Date(today);
+  dateAfter.setDate(today.getDate() - 10);
+  const response = await fetch('/api/vista/work-order-search', {
+      method: 'POST',
+      body: JSON.stringify({
+        filterObj: {value: convertDate(dateAfter), propertyName: 'RequestedDate', operator: 'GreaterThan'}
+      })
+  })
+  const res = await response.json()
+  return res
+}
+
+const filteredRows = computed(() => {
+  console.log('Filtered rows search:', search.value)
+
+  if (!search.value) {
+    isLoading.value = true
+    setTimeout(() => {
+        isLoading.value = false
+    }, 1000)
+
+    return workOrderData.value
+  }
+  // page.value = 1
+  setTimeout(() => {
+      isLoading.value = false
+  }, 1000)
+
+  if (search.value.startsWith('FilteredByStatus:')) {
+      const status = search.value.split(':')[1]
+      console.log('Filtering by status:', status)
+      return status === 'all' ? workOrderData.value :
+        workOrderData.value.filter((d: User) => d.WOStatus === Number(status))
+  }
+  return workOrderData.value.filter((d: User) => {
+      return Object.values(d).some((value) => {
+          return String(value).toLowerCase().includes(search.value.toLowerCase())
+      })
+  })
+})
+
+// const columnFilters = ref([{
+//   id: 'WorkOrder',
+//   value: ''
+// }])
+const columnVisibility = ref()
+const rowSelection = ref({})
+
+function getRowItems(row: Row<any>) {
   return [
     {
       type: 'label',
       label: 'Actions'
     },
     {
-      label: 'Copy customer ID',
+      type: 'separator'
+    },
+    {
+      label: 'Copy Work Order ID',
       icon: 'i-lucide-copy',
       onSelect() {
-        navigator.clipboard.writeText(row.original.id.toString())
+        console.log('Copying Work Order ID:', row)
+        if (!navigator.clipboard) {
+          toast.add({
+            title: 'Clipboard not supported',
+            description: 'Your browser does not support clipboard operations.'
+          })
+          return
+        }
+        if (!row.original || !row.original.WorkOrder) {
+          toast.add({
+            title: 'Error',
+            description: 'No Work Order found for this row.'
+          })
+          return
+        }
+        navigator.clipboard.writeText(row.original.WorkOrder.toString())
         toast.add({
           title: 'Copied to clipboard',
-          description: 'Customer ID copied to clipboard'
+          description: 'Work Order ID copied to clipboard'
         })
       }
     },
@@ -50,31 +120,35 @@ function getRowItems(row: Row<User>) {
       type: 'separator'
     },
     {
-      label: 'View customer details',
-      icon: 'i-lucide-list'
-    },
-    {
-      label: 'View customer payments',
-      icon: 'i-lucide-wallet'
-    },
-    {
-      type: 'separator'
-    },
-    {
-      label: 'Delete customer',
-      icon: 'i-lucide-trash',
-      color: 'error',
+      label: 'View Work Order details',
+      icon: 'i-lucide-list',
       onSelect() {
-        toast.add({
-          title: 'Customer deleted',
-          description: 'The customer has been deleted.'
-        })
+        console.log('Viewing Work Order details:', row)
+        navigateTo('/work-order/' + row.original.WorkOrder)
       }
-    }
+    },
+    // {
+    //   label: 'View customer payments',
+    //   icon: 'i-lucide-wallet'
+    // },
+    // {
+    //   type: 'separator'
+    // },
+    // {
+    //   label: 'Delete customer',
+    //   icon: 'i-lucide-trash',
+    //   color: 'error',
+    //   onSelect() {
+    //     toast.add({
+    //       title: 'Customer deleted',
+    //       description: 'The customer has been deleted.'
+    //     })
+    //   }
+    // }
   ]
 }
 
-const columns: TableColumn<User>[] = [
+const columns: TableColumn<any>[] = [
   {
     id: 'select',
     header: ({ table }) =>
@@ -94,34 +168,14 @@ const columns: TableColumn<User>[] = [
       })
   },
   {
-    accessorKey: 'id',
-    header: 'ID'
-  },
-  {
-    accessorKey: 'name',
-    header: 'Name',
-    cell: ({ row }) => {
-      return h('div', { class: 'flex items-center gap-3' }, [
-        h(UAvatar, {
-          ...row.original.avatar,
-          size: 'lg'
-        }),
-        h('div', undefined, [
-          h('p', { class: 'font-medium text-highlighted' }, row.original.name),
-          h('p', { class: '' }, `@${row.original.name}`)
-        ])
-      ])
-    }
-  },
-  {
-    accessorKey: 'email',
+    accessorKey: 'WorkOrder',
     header: ({ column }) => {
       const isSorted = column.getIsSorted()
 
       return h(UButton, {
         color: 'neutral',
         variant: 'ghost',
-        label: 'Email',
+        label: 'Work Order',
         icon: isSorted
           ? isSorted === 'asc'
             ? 'i-lucide-arrow-up-narrow-wide'
@@ -130,26 +184,55 @@ const columns: TableColumn<User>[] = [
         class: '-mx-2.5',
         onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
       })
+    },
+    cell: ({ row }) => {
+      return h(UButton, {
+        color: 'neutral',
+        variant: 'subtle',
+        label: row.original.WorkOrder,
+        onClick: () => navigateTo('/work-order/' + row.original.WorkOrder),
+        class: 'text-center cursor-pointer',
+      })
     }
   },
   {
-    accessorKey: 'location',
-    header: 'Location',
-    cell: ({ row }) => row.original.location
+    accessorKey: 'ServiceSite',
+    header: 'Site',
+    // cell: ({ row }) => {
+    //   return h('div', { class: 'flex items-center gap-3' }, [
+    //     h(UAvatar, {
+    //       ...row.original.avatar,
+    //       size: 'lg'
+    //     }),
+    //     h('div', undefined, [
+    //       h('p', { class: 'font-medium text-highlighted' }, row.original.name),
+    //       h('p', { class: '' }, `@${row.original.name}`)
+    //     ])
+    //   ])
+    // }
   },
   {
-    accessorKey: 'status',
+    accessorKey: 'LeadTechnician',
+    header: 'Technician',
+  },
+  {
+    accessorKey: 'EnteredBy',
+    header: 'Entered By',
+  },
+  {
+    accessorKey: 'WOStatus',
     header: 'Status',
     filterFn: 'equals',
     cell: ({ row }) => {
-      const color = {
-        subscribed: 'success' as const,
-        unsubscribed: 'error' as const,
-        bounced: 'warning' as const
-      }[row.original.status]
+      const WOStatus = row.original.WOStatus === 0 ? 'Open' : (row.original.WOStatus === 1 ? 'WIP' : 'Completed')
+      const color: any = {
+        2: 'success' as const,
+        1: 'warning' as const,
+        0: 'info' as const
+      }[row.original.WOStatus]
 
       return h(UBadge, { class: 'capitalize', variant: 'subtle', color }, () =>
-        row.original.status
+        WOStatus
       )
     }
   },
@@ -183,16 +266,8 @@ const columns: TableColumn<User>[] = [
 const statusFilter = ref('all')
 
 watch(() => statusFilter.value, (newVal) => {
-  if (!table?.value?.tableApi) return
-
-  const statusColumn = table.value.tableApi.getColumn('status')
-  if (!statusColumn) return
-
-  if (newVal === 'all') {
-    statusColumn.setFilterValue(undefined)
-  } else {
-    statusColumn.setFilterValue(newVal)
-  }
+  console.log('Status filter changed:', newVal, filteredRows.value)
+  search.value = 'FilteredByStatus:' + newVal
 })
 
 const pagination = ref({
@@ -200,43 +275,41 @@ const pagination = ref({
   pageSize: 10
 })
 
-function updateSearch(event: any) {
-  console.log('Search updated1:', event)
-  console.log('Search updated2:', table.value?.tableApi?.getColumn('email'))
-  console.log('Search updated3:', table.value?.tableApi?.getColumn('email')?.getFilterValue())
-  console.log('Search updated3:', table.value?.tableApi?.getColumn('email')?.getFilterValue() as string)
+function select(row: TableRow<any>, e?: Event) {
+  console.log('Row selected:', row)
 
-  console.log('Search updated3:', table.value?.tableApi?.getColumn('email')?.setFilterValue(event))
-
+  row.toggleSelected(!row.getIsSelected())
+  console.log(e)
 }
+
+
 </script>
 
 <template>
-  <UDashboardPanel id="customers">
+  <UDashboardPanel id="work-order">
     <template #header>
-      <UDashboardNavbar title="Customers">
+      <UDashboardNavbar title="Work Order">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
 
-        <template #right>
+        <!-- <template #right>
           <CustomersAddModal />
-        </template>
+        </template> -->
       </UDashboardNavbar>
     </template>
 
     <template #body>
       <div class="flex flex-wrap items-center justify-between gap-1.5">
         <UInput
-          :model-value="(table?.tableApi?.getColumn('email')?.getFilterValue() as string)"
+          v-model="search"
           class="max-w-sm"
           icon="i-lucide-search"
-          placeholder="Filter emails..."
-          @update:model-value="updateSearch($event)"
+          placeholder="Input search term"
         />
 
         <div class="flex flex-wrap items-center gap-1.5">
-          <CustomersDeleteModal :count="table?.tableApi?.getFilteredSelectedRowModel().rows.length">
+          <!-- <CustomersDeleteModal :count="table?.tableApi?.getFilteredSelectedRowModel().rows.length">
             <UButton
               v-if="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
               label="Delete"
@@ -250,15 +323,15 @@ function updateSearch(event: any) {
                 </UKbd>
               </template>
             </UButton>
-          </CustomersDeleteModal>
+          </CustomersDeleteModal> -->
 
           <USelect
             v-model="statusFilter"
             :items="[
               { label: 'All', value: 'all' },
-              { label: 'Subscribed', value: 'subscribed' },
-              { label: 'Unsubscribed', value: 'unsubscribed' },
-              { label: 'Bounced', value: 'bounced' }
+              { label: 'Open', value: 0 },
+              { label: 'WIP', value: 1 },
+              { label: 'Completed', value: 2 }
             ]"
             :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
             placeholder="Filter status"
@@ -293,9 +366,14 @@ function updateSearch(event: any) {
         </div>
       </div>
 
+      <UiAppLoading
+        v-if="isLoading"
+        class="border rounded-md p-6 my-4 border-neutral-800"
+      />
+
       <UTable
+        v-if="!isLoading"
         ref="table"
-        v-model:column-filters="columnFilters"
         v-model:column-visibility="columnVisibility"
         v-model:row-selection="rowSelection"
         v-model:pagination="pagination"
@@ -303,9 +381,10 @@ function updateSearch(event: any) {
           getPaginationRowModel: getPaginationRowModel()
         }"
         class="shrink-0"
-        :data="data"
+        :data="filteredRows"
         :columns="columns"
-        :loading="status === 'pending'"
+        :loading="isLoading"
+        @select="select"
         :ui="{
           base: 'table-fixed border-separate border-spacing-0',
           thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
@@ -315,7 +394,8 @@ function updateSearch(event: any) {
         }"
       />
 
-      <div class="flex items-center justify-between gap-3 border-t border-default pt-4 mt-auto">
+      <div class="flex items-center justify-between gap-3 border-t border-default pt-4 mt-auto"
+        v-if="!isLoading">
         <div class="text-sm text-muted">
           {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }} of
           {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} row(s) selected.

@@ -11,11 +11,11 @@ const props = defineProps<{
 const UBadge = resolveComponent('UBadge')
 
 const sampleEmails = [
-  'james.anderson@example.com',
-  'mia.white@example.com',
-  'william.brown@example.com',
-  'emma.davis@example.com',
-  'ethan.harris@example.com'
+  'francis.regala@strattonstudiogames.com',
+  'john.loveridge@strattonstudiogames.com',
+  'blake@wexlerllc.com',
+  'elyse@wexlerllc.com',
+  'ethan.harris@gmail.com'
 ]
 
 const { data } = await useAsyncData('sales', async () => {
@@ -29,7 +29,7 @@ const { data } = await useAsyncData('sales', async () => {
     sales.push({
       id: (4600 - i).toString(),
       date: date.toISOString(),
-      status: randomFrom(['paid', 'failed', 'refunded']),
+      status: randomFrom(['on-going', 'for follow-up', 'completed']),
       email: randomFrom(sampleEmails),
       amount: randomInt(100, 1000)
     })
@@ -65,9 +65,9 @@ const columns: TableColumn<Sale>[] = [
     header: 'Status',
     cell: ({ row }) => {
       const color = {
-        paid: 'success' as const,
-        failed: 'error' as const,
-        refunded: 'neutral' as const
+        completed: 'success' as const,
+        'for follow-up': 'error' as const,
+        'on-going': 'neutral' as const
       }[row.getValue('status') as string]
 
       return h(UBadge, { class: 'capitalize', variant: 'subtle', color }, () =>
@@ -87,7 +87,7 @@ const columns: TableColumn<Sale>[] = [
 
       const formatted = new Intl.NumberFormat('en-US', {
         style: 'currency',
-        currency: 'EUR'
+        currency: 'USD'
       }).format(amount)
 
       return h('div', { class: 'text-right font-medium' }, formatted)

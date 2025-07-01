@@ -3,7 +3,8 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
     '@nuxt/ui-pro',
-    '@vueuse/nuxt'
+    '@vueuse/nuxt',
+    '@formkit/nuxt'
   ],
 
   devtools: {
@@ -24,12 +25,25 @@ export default defineNuxtConfig({
 
   compatibilityDate: '2024-07-11',
 
+  formkit: {
+    // Experimental support for auto loading (see note):
+    autoImport: true
+  },
+
   eslint: {
     config: {
       stylistic: {
         commaDangle: 'never',
         braceStyle: '1tbs'
       }
+    }
+  },
+
+  runtimeConfig: {
+    public: {
+      vistaApiUrl: process.env.NUXT_PUBLIC_VISTA_API_URL,
+      vistaApiKey: process.env.NUXT_PUBLIC_VISTA_API_KEY,
+      vistaSubscriptionCode: process.env.NUXT_PUBLIC_VISTA_SUBSCRIPTION_CODE,
     }
   }
 })
