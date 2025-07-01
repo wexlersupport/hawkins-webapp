@@ -69,7 +69,7 @@
                         class="border rounded-md p-6 my-4 border-neutral-800"
                     />
                     <div v-if="!isLoading">
-                        <UCard>
+                        <UCard :ui="{ root: 'rounded-lg overflow-y-auto' }">
                             <template #default>
                                 <UForm
                                     id="settings"
