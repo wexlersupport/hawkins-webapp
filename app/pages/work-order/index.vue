@@ -34,7 +34,7 @@ async function fetchWorkOrder() {
 
   const today = new Date();
   const dateAfter = new Date(today);
-  dateAfter.setDate(today.getDate() - 10);
+  dateAfter.setDate(today.getDate() - 15);
   const response = await fetch('/api/vista/work-order-search', {
       method: 'POST',
       body: JSON.stringify({
