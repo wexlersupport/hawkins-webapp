@@ -44,6 +44,11 @@ export default defineNuxtConfig({
       vistaApiUrl: process.env.NUXT_PUBLIC_VISTA_API_URL,
       vistaApiKey: process.env.NUXT_PUBLIC_VISTA_API_KEY,
       vistaSubscriptionCode: process.env.NUXT_PUBLIC_VISTA_SUBSCRIPTION_CODE,
-    }
+      sendgridApiKey: process.env.NUXT_PUBLIC_SENDGRID_API_KEY,
+    },
+    mysqlHost: process.env.NUXT_MYSQL_HOST,
+    mysqlUser: process.env.NUXT_MYSQL_USER,
+    mysqlPassword: process.env.NUXT_MYSQL_PASSWORD,
+    mysqlDatabase: process.env.NUXT_MYSQL_DATABASE,
   }
 })

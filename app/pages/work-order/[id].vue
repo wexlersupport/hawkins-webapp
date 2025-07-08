@@ -39,6 +39,15 @@
         })
     }
 
+    async function onTesting() {
+        console.log('Testing')
+        const response = await fetch('/api/accubid/test', {
+            method: 'POST'
+        })
+        const res = await response.json()
+        console.log('res ', res)
+    }
+
 </script>
 
 <template>
@@ -279,6 +288,7 @@
 
                 <template #footer v-if="!isLoading">
                     <div class="flex items-center justify-end">
+                        <!-- <UButton @click="onTesting()" class="cursor-pointer mr-4" color="info" size="xl" label="Test TRA-SER" /> -->
                         <UButton @click="onQuotation" class="cursor-pointer" size="xl" label="Create Quotation" icon="i-lucide-plus" />
                     </div>
                 </template>

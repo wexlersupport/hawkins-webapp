@@ -10,6 +10,7 @@
     const subscontractCostsRef = ref<any>(null)
     const biddingPriceRef = ref<any>(null)
     const extraDeductMoney = ref<number>(0)
+    const sendEmailModal = ref<any>(null)
 
     onMounted(async () => {
         isLoading.value = true
@@ -18,13 +19,6 @@
         console.log('Quotation page:', workOrderDetail.value)
         
         isLoading.value = false
-
-        setTimeout(() => {
-            console.log('Material Costs Ref:', materialCostsRef.value)
-            console.log('Miscellaneous Costs Ref:', miscellaneousCostsRef.value)
-            console.log('Labor Costs Ref:', laborCostsRef.value)
-            console.log('Subcontract Costs Ref:', subscontractCostsRef.value)
-        }, 3000)
     })
 
     async function fetchWorkOrderId() {
@@ -51,6 +45,32 @@
         }
     })
 
+    async function onComposeEmailModal() {
+        sendEmailModal.value.onModalOpen()
+
+        // const formData = new FormData();
+        // if (uploadedFile.value && uploadedFile.value.length > 0) {
+        //     Array.from(uploadedFile.value).forEach((item: any, index: number) => {
+        //         formData.append('quote_'+workOrderId+"_"+index, item);
+        //     });
+        //     console.log('Form data prepared with file:', formData);
+        // } else {
+        //     console.error('No file selected');
+        // }
+
+        // const response = await fetch('/api/sendgrid/upload-files', {
+        //     method: 'POST',
+        //     body: formData
+        // })
+        // const upload_files_res = await response.json()
+        // console.log('upload_files_res ', upload_files_res)
+    }
+
+    // const uploadedFile: any = ref([]);
+    // async function handlefileChange(event: any) {
+    //     uploadedFile.value = event.target.files;
+    //     console.log('File selected:', uploadedFile.value);
+    // }
 
 </script>
 
@@ -92,7 +112,7 @@
                         <QuotationGrossProfit :costs="costs" :extra-cost="extraDeductMoney" />
                         <QuotationCostsPercentBidding :costs="costs" :extra-cost="extraDeductMoney" />
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 pl-2 pt-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 pl-2 pt-4" v-if="!isLoading">
                          <div class="grid grid-cols-3 text-neutral-400">
                             <div class="text-right text-nowrap pr-3 italic">
                                 <div>Extra Deduct Money:</div>
@@ -130,11 +150,16 @@
                                 <div class="text-xs text-neutral-600">(total bidding price + extra deduct money)</div>
                             </div>
                         </div>
+                        <div class="flex items-center justify-end">
+                            <!-- <input type="file" multiple @change="handlefileChange" /> -->
+                            <UButton class="cursor-pointer mr-4" label="SAVE DATA" icon="i-lucide-save" />
+                            <UButton @click="onComposeEmailModal" class="cursor-pointer" label="COMPOSE EMAIL" icon="i-lucide-mail" color="neutral" />
+                        </div>
                     </div>
                 </template>
             </UCard>
 
-            
+            <UiModalSendEmail ref="sendEmailModal" />
         </template>
     </UDashboardPanel>
 </template>
