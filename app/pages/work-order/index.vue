@@ -294,7 +294,9 @@ function select(row: TableRow<any>, e?: Event) {
         </template>
 
         <!-- <template #right>
-          <CustomersAddModal />
+          <UButton icon="i-lucide-plus">
+            <NuxtLink to="/work-order/create">Create Work Order</NuxtLink>
+          </UButton>
         </template> -->
       </UDashboardNavbar>
     </template>
