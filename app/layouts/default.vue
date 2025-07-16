@@ -30,6 +30,14 @@ const links = [[{
   onSelect: () => {
     open.value = false
   }
+},
+{
+  label: 'Quotation',
+  icon: 'i-lucide-circle-dollar-sign',
+  to: '/quotation/',
+  onSelect: () => {
+    open.value = false
+  }
 }
 // ,{
 //   label: 'Settings',

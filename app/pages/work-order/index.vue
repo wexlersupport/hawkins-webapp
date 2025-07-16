@@ -18,15 +18,15 @@ const workOrderData = ref<any>()
 
 onMounted(async () => {
   const { response } = await fetchWorkOrder()
-  console.log(response)
+  // console.log(response)
   workOrderData.value = response?.data
   isLoading.value = false
-  console.log(workOrderData.value)
-  console.log('table ', table.value?.tableApi?.getColumn('WorkOrder'))
-  const  WOStatus = workOrderData.value.map((item: User) => item.WOStatus)
-  console.log('WOStatus:', WOStatus)
-  const uniqueArray = [...new Set(WOStatus)]; 
-  console.log('Unique WOStatus:', uniqueArray)
+  // console.log(workOrderData.value)
+  // console.log('table ', table.value?.tableApi?.getColumn('WorkOrder'))
+  // const  WOStatus = workOrderData.value.map((item: User) => item.WOStatus)
+  // console.log('WOStatus:', WOStatus)
+  // const uniqueArray = [...new Set(WOStatus)]; 
+  // console.log('Unique WOStatus:', uniqueArray)
 })
 
 async function fetchWorkOrder() {
@@ -46,7 +46,7 @@ async function fetchWorkOrder() {
 }
 
 const filteredRows = computed(() => {
-  console.log('Filtered rows search:', search.value)
+  // console.log('Filtered rows search:', search.value)
 
   if (!search.value) {
     isLoading.value = true

@@ -16,6 +16,7 @@
     const sendEmailModal = ref<any>(null)
 
     const created_at = formatJsDateToDatetime(new Date())
+    const quotation_id = ref<any>(null)
     const query = { table: 'quotation_details' }
 
     onMounted(async () => {
@@ -83,13 +84,21 @@
             $fetch('/api/postgre', {
                 query,
                 method: 'POST',
-                body: { created_at, work_order_id, item, name, cost },
+                body: {
+                    quotation_id: quotation_id.value,
+                    created_at, work_order_id, item, name, cost
+                },
             })
         );
     };
 
     async function onSave() {
         isLoadingSave.value = true
+        const { data }: any = await useFetch('/api/postgre/quotation/group_quotation_id', {
+            query
+        });
+        quotation_id.value = (data?.value?.data?.length + 1001) || 0
+
 
         const mat_promises = await onMatCostSave()
         const misc_promises = await onMiscCostSave()
@@ -105,7 +114,7 @@
             toast.add({ title: 'Success', description: `Quotation successfully generated!`, color: 'success' })
 
             setTimeout(async () => {
-                router.back()
+                navigateTo('/quotation')
             }, 1000)
         }).catch(async (error) => {
             console.log("Promise.all caught an error:", error);

@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
         const query = `SELECT * FROM ${table} WHERE ${dynamic_field} = $1`
         const rows = await sql(query, [value]);
-        console.log('rows ', rows)
+        // console.log('rows ', rows)
 
         if (rows.length === 0) {
             throw createError({ statusCode: 404, statusMessage: 'Item not found' })

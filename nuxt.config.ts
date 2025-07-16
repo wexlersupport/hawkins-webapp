@@ -4,8 +4,15 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/ui-pro',
     '@vueuse/nuxt',
-    '@formkit/nuxt'
+    '@formkit/nuxt',
+    'nuxt-pdfmake',
   ],
+
+  pdfmake: {
+    enabled: true, // Enable the module
+    enableComposable: true, // Enable usePDFMake and useFontPresets composables
+    enableDevtools: true, // Enable the devtools tab
+  },
 
   devtools: {
     enabled: true
