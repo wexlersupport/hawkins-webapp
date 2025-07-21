@@ -88,3 +88,174 @@ export function getFinalPrice(data: any): number {
 
     return Number((bidding_price + Number(extra_deduct?.cost)).toFixed(2))
 }
+
+export function onUpdateItems(data: any, item: string) {
+    const items: any[] = []
+    if (data?.length > 0) {
+        const costs = data.filter((d: any) => d.item === item)
+        if (costs.length > 0) {
+            costs.forEach((item: any) => {
+                items.push({
+                    id: Number(item?.id) ?? 0,
+                    work_order_id: Number(item?.work_order_id) ?? 0,
+                    name: item.name,
+                    cost: Number(item.cost)
+                })
+            })
+        }
+    }
+
+    return items
+}
+
+export function getItem(data: any, item: string, properties: string = 'item'): Number | number {
+    const result = data?.find((items: any) => items[properties] === item)
+    return Number(result?.cost) || 0
+}
+
+export function getDynamicItem(data: any, item: string, properties: string, output: string): any {
+    const result = data?.find((items: any) => items[properties] === item)
+    return result[output]
+}
+
+export function convertNumberToWords(number: Number, options = {}) {
+    // Default options for currency (can be overridden)
+    const defaultOptions = {
+        currencyName: "dollar",    // Singular name for the main currency unit
+        currencyNamePlural: "dollars", // Plural name for the main currency unit
+        subCurrencyName: "cent",   // Singular name for the sub-currency unit
+        subCurrencyNamePlural: "cents", // Plural name for the sub-currency unit
+        includeCents: true,        // Default to true when currency is involved
+        leadingAnd: false          // Whether to add "and" before cents if there's an integer part
+    };
+    const finalOptions = { ...defaultOptions, ...options };
+
+    if (typeof number !== 'number') {
+        return "Please provide a valid number.";
+    }
+
+    const units = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+    const teens = ["", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+    const tens = ["", "ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+    const thousands = ["", "thousand", "million", "billion", "trillion"];
+
+    // Helper function to convert numbers less than one thousand to words
+    function convertLessThanOneThousand(num: number) {
+        let str = "";
+        if (Math.floor(num / 100) > 0) {
+            str += units[Math.floor(num / 100)] + " hundred ";
+            num %= 100;
+        }
+        if (num > 0) {
+            if (str !== "" && num < 100) { // Add "and" only if there are hundreds and remaining part is less than 100
+                str += "and ";
+            }
+            if (num < 10) {
+                str += units[num];
+            } else if (num >= 11 && num <= 19) {
+                str += teens[num - 10];
+            } else {
+                str += tens[Math.floor(num / 10)];
+                if (num % 10 > 0) {
+                    str += "-" + units[num % 10];
+                }
+            }
+        }
+        return str.trim();
+    }
+
+    // Helper function to convert a string to proper case, excluding 'and'
+    function toProperCase(str: string) {
+        return str.split(' ').map(word => {
+            if (word.toLowerCase() === 'and' || word.toLowerCase() === 'point') { // Keep 'and' and 'point' lowercase
+                return word.toLowerCase();
+            }
+            if (word.includes('-')) { // Handle hyphenated words like "forty-two"
+                return word.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()).join('-');
+            }
+            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        }).join(' ');
+    }
+
+    let isNegative = number < 0;
+    let absoluteNumber = Math.abs(number);
+    let integerPart = Math.floor(absoluteNumber);
+    let decimalPart = Math.round((absoluteNumber - integerPart) * 100); // Get two decimal places
+
+    let words = "";
+
+    // Handle zero
+    if (number === 0) {
+        return toProperCase("zero " + (finalOptions.currencyNamePlural || "")); // Return "Zero Dollars" etc.
+    }
+
+    // Handle negative numbers
+    if (isNegative) {
+        words += "minus ";
+    }
+
+    // Convert integer part
+    if (integerPart === 0) {
+        // If integer part is zero, no need to add 'zero dollars' here if there are cents
+    } else {
+        let tempIntegerWords = "";
+        let i = 0;
+        let tempNumber = integerPart;
+
+        while (tempNumber > 0) {
+            if (tempNumber % 1000 !== 0) {
+                let chunk = convertLessThanOneThousand(tempNumber % 1000);
+                tempIntegerWords = chunk + " " + thousands[i] + " " + tempIntegerWords;
+            }
+            tempNumber = Math.floor(tempNumber / 1000);
+            i++;
+        }
+        words += tempIntegerWords.trim();
+
+        // Add currency name for the integer part
+        if (finalOptions.currencyName && integerPart >= 0) { // Only add if currency name is provided in options
+            if (integerPart === 1) {
+                words += " " + finalOptions.currencyName;
+            } else {
+                words += " " + finalOptions.currencyNamePlural;
+            }
+        }
+    }
+
+
+    // Handle decimal part (cents/centavos)
+    if (decimalPart > 0) {
+        // Add "and" before cents only if there's an integer part AND options.leadingAnd is true
+        if (integerPart > 0 && finalOptions.leadingAnd) {
+            words += " and ";
+        } else if (integerPart === 0 && words === "") { // For numbers like 0.75 where the integer part wasn't spoken
+             // If words is empty it means integer part was 0, so we just go straight to cents
+        } else if (integerPart > 0) { // If integerPart > 0 but leadingAnd is false, just add a space
+             words += " ";
+        } else if (integerPart === 0 && words !== "") { // if words is not empty, means "zero" was added to words, so add an 'and'
+            words += " and ";
+        }
+
+
+        let subCurrencyWords = convertLessThanOneThousand(decimalPart);
+        words += subCurrencyWords;
+
+        // Add sub-currency name
+        if (finalOptions.subCurrencyName) { // Only add if sub-currency name is provided
+            if (decimalPart === 1) {
+                words += " " + finalOptions.subCurrencyName;
+            } else {
+                words += " " + finalOptions.subCurrencyNamePlural;
+            }
+        }
+    } else if (integerPart > 0 && decimalPart === 0 && finalOptions.currencyName) {
+        // If there's an integer part but no decimal, and currency is involved, ensure currency pluralization is right.
+        // This case is largely handled by the integer part, but ensures no extra "and zero cents"
+    } else if (number !== 0 && words === "") { // Handles cases like 0.00
+        words = "zero"; // If it's effectively zero and no currency was specified in the initial zero check
+    }
+
+
+    // Apply proper case to the entire string
+    return toProperCase(words.trim());
+}

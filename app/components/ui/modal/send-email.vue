@@ -2,14 +2,30 @@
     import * as v from 'valibot'
     import type { FormSubmitEvent } from '@nuxt/ui'
 
+    const emits = defineEmits(['download']);
     const toast = useToast()
     const form: any = useTemplateRef('form')
     const open = ref<boolean>(false)
     const emailObj = reactive({
         from: 'francis.regala@strattonstudiogames.com',
-        to: 'pantet008@gmail.com',
+        to: '',
         subject: 'Test Subject',
-        html: '<p>Hi,</p><p><br></p><p>See the attached quote and let me know how you would like to proceed.</p><p><br></p><p>Thank you.</p>'
+        html: '<p>Hi,</p><p><br></p><p>See the attached quote and let me know how you would like to proceed.</p><p><br></p><p>Thank you.</p>',
+        filename: 'test.pdf'
+    })
+    const props = defineProps<{
+        data: any,
+    }>()
+    
+    const pdf_name = ref<string>('')
+    onMounted(async () => {
+        if (props?.data) {
+            const name = props?.data?.work_order_details?.ContactName ?? props?.data?.customer_details?.Name
+            pdf_name.value = `${name}_${props?.data?.work_order_id}_${props?.data?.quotation_id}`
+
+            emailObj.filename = `${pdf_name.value}.pdf`
+            emailObj.subject = `${name} - WO#${props?.data?.work_order_id} - Quote#${props?.data?.quotation_id}`
+        }
     })
 
     defineExpose({
@@ -39,7 +55,7 @@
         if (send_quotation_res?.data?.id || (send_quotation_res.length > 0 && send_quotation_res[0].statusCode)) {
             toast.add({
                 title: 'Success',
-                description: 'Your message was successfully sent!',
+                description: 'Your email was successfully sent!',
                 icon: 'i-lucide-check',
                 color: 'success'
             })
@@ -105,6 +121,15 @@
                                     <QuillEditor contentType="html" v-model:content="emailObj.html"
                                         theme="snow" placeholder="Write your message here..." />
                                 </ClientOnly>
+                            </div>
+                            <div id="uploadedFilesContainer" class="col-span-4 mt-6 p-4 rounded-md border">
+                                <div class="text-sm mb-2">Attachment Files:</div>
+                                <ul id="uploadedFilesList" class="list-disc pl-4 text-red-400" v-if="pdf_name">
+                                    <li class="flex items-center space-x-2 mb-1" @click="emits('download')">
+                                        <UButton :label="`${pdf_name}.pdf`" class="cursor-pointer" icon="i-lucide-file-text" variant="ghost" />
+                                    </li>
+                                </ul>
+                                <p  v-if="!pdf_name" id="noFilesMessage" class="text-gray-500 text-sm italic">No files uploaded yet.</p>
                             </div>
                         </div>
                     </div>

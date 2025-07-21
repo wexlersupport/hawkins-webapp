@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     //     upload_files_res = parseBody.upload_files_res
     // }
     try {
-        const { from, to, subject, html } = parseBody.emailObj
+        const { from, to, subject, html, filename } = parseBody.emailObj
         const sendContent: any = { from, to, subject, html }
         if (sendContent.html) {
             sendContent.html = convertHtmlEmail(html)
@@ -32,19 +32,19 @@ export default defineEventHandler(async (event) => {
         //     sendContent.attachments = attachments
         // }
         
-        /* send with attachment
-        const filepath = "./public/uploaded-files/test.pdf"; // Adjust the path to your file
+        // send with attachment
+        const filepath = "./public/uploaded-files/" + filename; // Adjust the path to your file
         const content = fs.readFileSync(filepath).toString('base64');
         const attachments = [
             {
                 content,
-                "filename": "test.pdf",
-                "type": "text/html",
-                "disposition": "attachment"
+                filename,
+                type: "text/html",
+                disposition: "attachment"
             }
         ]
         sendContent.attachments = attachments
-        */
+
         const data = sgMail
             // .send({...sendContent, template_id: 'd-9ea9297503204eab95b081340ee70691'})
             .send(sendContent)

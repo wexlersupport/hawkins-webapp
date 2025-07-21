@@ -3,12 +3,13 @@ import { neon } from '@netlify/neon';
 const sql = neon(); // automatically uses env NETLIFY_DATABASE_URL
 
 export default defineEventHandler(async (event) => {
-    const { table } = getQuery(event)
+    const { table, dynamic_field, dynamic_value } = getQuery(event)
     try {
         const id = getRouterParam(event, 'id')
         if (!id || isNaN(Number(id))) {
             throw createError({ statusCode: 400, statusMessage: 'Invalid item ID' })
         }
+        const value = dynamic_value ?? id
 
         const body = await readBody(event)
         const values = Object.values(body);
@@ -26,11 +27,11 @@ export default defineEventHandler(async (event) => {
         const query = `
           UPDATE ${table}
           SET ${setClauses}
-          WHERE id = ${id}
+          WHERE ${dynamic_field} = ${value}
           RETURNING *
         `;
         const result = await sql(query, values);
-        console.log('result ', result)
+        // console.log('result ', result)
 
         if (result.length === 0) {
           return { error: 'Entry not found', statusCode: 404 };

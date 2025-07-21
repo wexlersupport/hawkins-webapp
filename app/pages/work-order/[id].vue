@@ -4,12 +4,13 @@
     const isLoading = ref<boolean>(true)
     const workOrderDetail = ref()
     const scopeDetails = ref([])
+    const isQuoteExist = ref<boolean>(false)
+    const quote = ref()
 
     onMounted(async () => {
         isLoading.value = true
         const { response } = await fetchWorkOrderId()
         workOrderDetail.value = response
-        console.log('Work Order ID:', workOrderDetail.value)
         if(workOrderDetail.value?.ScopeDetails.length) {
             scopeDetails.value = workOrderDetail.value.ScopeDetails.map((detail: any, index: number) => ({
                 id: index + 1,
@@ -18,7 +19,9 @@
                 content: detail || {}
             }))
         }
-        console.log('Scope Details:', scopeDetails.value)
+        quote.value = await fetchQuotationByWorkOrderId()
+        isQuoteExist.value = quote.value?.data?.length > 0 ? true : false
+
         isLoading.value = false
     });
 
@@ -32,12 +35,34 @@
         return res
     }
 
+    async function fetchQuotationByWorkOrderId() {
+        const data = await handleApiResponse($fetch(`/api/postgre/dynamic_field`, {
+            query: {
+                table: 'quotation_details',
+                dynamic_field: 'work_order_id',
+                value: workOrderId
+            },
+            method: 'GET'
+        }));
+
+        return data
+    }
+
     async function onQuotation() {
         await navigateTo({
             path: '/work-order/quotation',
             query: { id: workOrderId }
         })
     }
+
+    async function gotoQuotation() {
+        const { quotation_id } = quote.value?.data[0]
+        await navigateTo({
+            path: '/quotation/' + quotation_id
+        })
+    }
+
+    
 
     async function onTesting() {
         console.log('Testing')
@@ -289,7 +314,8 @@
                 <template #footer v-if="!isLoading">
                     <div class="flex items-center justify-end">
                         <!-- <UButton @click="onTesting()" class="cursor-pointer mr-4" color="info" size="xl" label="Test TRA-SER" /> -->
-                        <UButton @click="onQuotation" class="cursor-pointer" size="xl" label="Create Quotation" icon="i-lucide-plus" />
+                        <UButton v-if="isQuoteExist" @click="gotoQuotation" class="cursor-pointer" size="xl" label="Quotation already created!" variant="ghost" />
+                        <UButton v-if="!isQuoteExist" @click="onQuotation" class="cursor-pointer" size="xl" label="Create Quotation" icon="i-lucide-plus" />
                     </div>
                 </template>
             </UCard>

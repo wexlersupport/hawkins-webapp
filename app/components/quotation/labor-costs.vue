@@ -1,12 +1,25 @@
 <script setup lang="ts">
-    const laborCosts = ref<{ laborHours: number; overtimeHours: number; laborRate: number; overtimeRate: number }>({
-        laborHours: 8,
-        overtimeHours: 1.5,
+    const props = defineProps<{
+        items: any
+    }>()
+
+    const laborCosts = ref<{ laborHours: Number; overtimeHours: Number; laborRate: Number; overtimeRate: Number }>({
+        laborHours: 0,
+        overtimeHours: 0,
         laborRate: 55,
         overtimeRate: 82.50
     });
     defineExpose({
         labor_cost_items: laborCosts.value,
+    })
+
+    onMounted(async () => {
+        if (props?.items?.length > 0) {
+            laborCosts.value.laborHours = getItem(props?.items, 'labor_hours', 'name')
+            laborCosts.value.overtimeHours = getItem(props?.items, 'ot_hours', 'name')
+            laborCosts.value.laborRate = getItem(props?.items, 'labor_rate', 'name')
+            laborCosts.value.overtimeRate = getItem(props?.items, 'ot_rate', 'name')
+        }
     })
 </script>
 

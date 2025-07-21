@@ -1,6 +1,5 @@
 <script setup lang="ts">
     const toast = useToast()
-    const router = useRouter()
     const route = useRoute()
 
     const work_order_id = route.query.id as string
@@ -23,7 +22,6 @@
         isLoading.value = true
         const { response } = await fetchWorkOrderId()
         workOrderDetail.value = response
-        // console.log('Quotation page:', workOrderDetail.value)
         
         isLoading.value = false
     })
@@ -39,12 +37,16 @@
     }
 
     const costs = computed(() => {
-        return {
-            materialCosts: ((materialCostsRef.value?.mat_cost_items.reduce((acc, item) => acc + item.cost, 0) +
+        let materialCosts = 0
+        if (materialCostsRef.value?.mat_cost_items?.length > 0) {
+            materialCosts = ((materialCostsRef.value?.mat_cost_items.reduce((acc, item) => acc + item.cost, 0) +
                 (materialCostsRef.value?.mat_cost_items.reduce((acc, item) => acc + item.cost, 0) * materialCostsRef.value?.mat_cost_pvs_input / 100) +
                 (materialCostsRef.value?.mat_cost_items.reduce((acc, item) => acc + item.cost, 0) +
                 (materialCostsRef.value?.mat_cost_items.reduce((acc, item) => acc + item.cost, 0) * materialCostsRef.value?.mat_cost_pvs_input / 100)) *
-                materialCostsRef.value?.mat_cost_tax_input / 100) || 0),
+                materialCostsRef.value?.mat_cost_tax_input / 100) || 0)
+        }
+        return {
+            materialCosts,
             miscellaneousCosts: miscellaneousCostsRef.value?.misc_cost_items.reduce((acc, item) => acc + item.cost, 0) || 0,
             subscontractCosts: subscontractCostsRef.value?.sub_cost_items.reduce((acc, item) => acc + item.cost, 0) || 0,
             laborCosts: laborCostsRef.value?.labor_cost_items || [],
@@ -52,8 +54,8 @@
         }
     })
 
-    async function onComposeEmailModal() {
-        sendEmailModal.value.onModalOpen()
+    // async function onComposeEmailModal() {
+    //     sendEmailModal.value.onModalOpen()
 
         // const formData = new FormData();
         // if (uploadedFile.value && uploadedFile.value.length > 0) {
@@ -71,7 +73,7 @@
         // })
         // const upload_files_res = await response.json()
         // console.log('upload_files_res ', upload_files_res)
-    }
+    // }
 
     // const uploadedFile: any = ref([]);
     // async function handlefileChange(event: any) {
@@ -94,11 +96,13 @@
 
     async function onSave() {
         isLoadingSave.value = true
-        const { data }: any = await useFetch('/api/postgre/quotation/group_quotation_id', {
-            query
+        const { data }: any = await useFetch('/api/postgre/dynamic_max', {
+            query: {
+                table: 'quotation_details',
+                dynamic_field: 'quotation_id'
+            }
         });
-        quotation_id.value = (data?.value?.data?.length + 1001) || 0
-
+        quotation_id.value = (Number(data.value) + 1) || 0
 
         const mat_promises = await onMatCostSave()
         const misc_promises = await onMiscCostSave()
@@ -217,14 +221,14 @@
                         class="border rounded-md p-6 my-4 border-neutral-800"
                     />
                     <div v-if="!isLoading" class="grid grid-cols-1 md:grid-cols-2 gap-y-2 pb-4 border-b-2 border-neutral-800">
-                        <QuotationMaterialCosts ref="materialCostsRef" />
-                        <QuotationMiscellaneousCosts ref="miscellaneousCostsRef" />
-                        <QuotationLaborCosts ref="laborCostsRef" />
-                        <QuotationSubscontractCosts ref="subscontractCostsRef" />
+                        <QuotationMaterialCosts ref="materialCostsRef" :items="[]" />
+                        <QuotationMiscellaneousCosts ref="miscellaneousCostsRef" :items="[]" />
+                        <QuotationLaborCosts ref="laborCostsRef" :items="[]" />
+                        <QuotationSubscontractCosts ref="subscontractCostsRef" :items="[]" />
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-y-2 pt-4" v-if="!isLoading">
-                        <QuotationBiddingPrice class="col-span-2" ref="biddingPriceRef" :costs="costs" />
+                        <QuotationBiddingPrice :costs="costs" class="col-span-2" ref="biddingPriceRef" :data="[]" />
                         <QuotationGrossProfit :costs="costs" :extra-cost="extraDeductMoney" />
                         <QuotationCostsPercentBidding :costs="costs" :extra-cost="extraDeductMoney" />
                     </div>
@@ -269,13 +273,10 @@
                         <div class="flex items-center justify-end">
                             <!-- <input type="file" multiple @change="handlefileChange" /> -->
                             <UButton @click="onSave" :loading="isLoadingSave" class="cursor-pointer mr-4" label="SAVE DATA" icon="i-lucide-save" />
-                            <UButton @click="onComposeEmailModal" :loading="isLoadingSave" class="cursor-pointer" label="COMPOSE EMAIL" icon="i-lucide-mail" color="neutral" />
                         </div>
                     </div>
                 </template>
             </UCard>
-
-            <UiModalSendEmail ref="sendEmailModal" />
         </template>
     </UDashboardPanel>
 </template>

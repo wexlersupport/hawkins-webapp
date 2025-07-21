@@ -37,7 +37,7 @@ export function convertDateFormat(dateString: any) {
   
   const options: any = {
     year: 'numeric',
-    month: 'short',
+    month: 'long',
     day: 'numeric'
   };
   

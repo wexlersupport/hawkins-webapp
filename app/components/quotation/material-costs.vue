@@ -1,18 +1,27 @@
 <script setup lang="ts">
+    const props = defineProps<{
+        items: any
+    }>()
 
     const isAddEdit = ref<boolean>(false)
     const editIndex = ref<number | undefined>(undefined)
-    const mat_cost_pvs_input = ref<number>(10)
-    const mat_cost_tax_input = ref<number>(6)
-    const mat_cost_items = ref([
-        { name: 'General Material', cost: 100.55 }
-    ])
+    const mat_cost_pvs_input = ref<Number>(10)
+    const mat_cost_tax_input = ref<Number>(6)
+    const mat_cost_items = ref<any[]>([])
     const mat_cost_item_addedit = ref({ name: '', cost: 0 })
 
     defineExpose({
-        mat_cost_items: mat_cost_items.value,
-        mat_cost_pvs_input: mat_cost_pvs_input.value,
-        mat_cost_tax_input: mat_cost_tax_input.value
+        mat_cost_items,
+        mat_cost_pvs_input,
+        mat_cost_tax_input
+    })
+
+    onMounted(async () => {
+        if (props?.items?.length > 0) {
+            mat_cost_items.value = onUpdateItems(props?.items, 'mat_cost')
+            mat_cost_pvs_input.value = getItem(props?.items, 'mat_cost_pvs_input')
+            mat_cost_tax_input.value = getItem(props?.items, 'mat_cost_tax_input')
+        }
     })
 
     async function addEditMaterialCostItem(params: { isEdit: boolean; index?: number }) {
@@ -32,6 +41,10 @@
             mat_cost_items.value.splice(index, 1)
         }
     }
+
+    watch(() => props.items, (newValue) => {
+        mat_cost_items.value = onUpdateItems(newValue, 'mat_cost')
+    });
 </script>
 
 <template>
@@ -55,7 +68,7 @@
                                 <UButton @click="isAddEdit = true; editIndex = index; mat_cost_item_addedit = { ...item }" class="cursor-pointer" size="sm" icon="i-lucide-pencil" variant="outline" color="info"/>
                             </UTooltip>
                             <UTooltip arrow text="Remove item">
-                                <UButton @click="removeMaterialCostItem(index)" class="cursor-pointer" size="sm" icon="i-lucide-minus" variant="outline" color="error"/>
+                                <UButton @click="removeMaterialCostItem(index, item)" class="cursor-pointer" size="sm" icon="i-lucide-minus" variant="outline" color="error"/>
                             </UTooltip>
                         </div>
                     </div>
@@ -86,7 +99,7 @@
                                 <UButton @click="addEditMaterialCostItem({ isEdit: isAddEdit, index: editIndex })" class="cursor-pointer" size="sm" icon="i-lucide-check" variant="solid" color="info"/>
                             </UTooltip>
                             <UTooltip arrow text="Remove item">
-                                <UButton @click="isAddEdit = false" class="cursor-pointer" size="sm" icon="i-lucide-trash" variant="outline" color="error"/>
+                                <UButton @click="isAddEdit = false" class="cursor-pointer" size="sm" icon="i-lucide-trash-2" variant="outline" color="error"/>
                             </UTooltip>
                         </div>
                     </div>

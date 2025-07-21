@@ -1,11 +1,21 @@
 <script setup lang="ts">
+    const props = defineProps<{
+        items: any
+    }>()
+
     const isAddEdit = ref<boolean>(false)
     const editIndex = ref<number | undefined>(undefined)
     const sub_cost_item_addedit = ref<{ name: string; cost: number }>({ name: '', cost: 0 })
-    const sub_cost_items = ref<{ name: string; cost: number }[]>([{ name: 'Item 1', cost: 20 }])
+    const sub_cost_items = ref<{ name: string; cost: number }[]>([])
 
     defineExpose({
-        sub_cost_items: sub_cost_items.value,
+        sub_cost_items,
+    })
+
+    onMounted(async () => {
+        if (props?.items?.length > 0) {
+            sub_cost_items.value = onUpdateItems(props?.items, 'subcon_cost')
+        }
     })
 
     async function removeSubCostItem(index: number) {
@@ -25,6 +35,10 @@
         sub_cost_item_addedit.value = { name: '', cost: 0 }
         isAddEdit.value = false
     }
+
+    watch(() => props.items, (newValue) => {
+        sub_cost_items.value = onUpdateItems(newValue, 'subcon_cost')
+    });
 </script>
 
 <template>
@@ -79,7 +93,7 @@
                                 <UButton @click="addEditSubCostItem({ isEdit: isAddEdit, index: editIndex })" class="cursor-pointer" size="sm" icon="i-lucide-check" variant="solid" color="info"/>
                             </UTooltip>
                             <UTooltip arrow text="Remove item">
-                                <UButton @click="isAddEdit = false" class="cursor-pointer" size="sm" icon="i-lucide-trash" variant="outline" color="error"/>
+                                <UButton @click="isAddEdit = false" class="cursor-pointer" size="sm" icon="i-lucide-trash-2" variant="outline" color="error"/>
                             </UTooltip>
                         </div>
                     </div>

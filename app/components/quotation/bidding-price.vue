@@ -1,9 +1,10 @@
 <script setup lang="ts">
-    defineProps<{
-        costs: any
+    const props = defineProps<{
+        costs: any,
+        data: any[]
     }>()
 
-    const gross_profit = ref({
+    const gross_profit = ref<any>({
         material: 45,
         labor: 145.00,
         labor_ot: 217.50,
@@ -12,7 +13,17 @@
     })
 
     defineExpose({
-        gross_profit: gross_profit.value,
+        gross_profit,
+    })
+
+    onMounted(async () => {
+        if (props?.data?.length > 0) {
+            gross_profit.value.material = getItem(props?.data, 'mat_gp', 'name')
+            gross_profit.value.labor = getItem(props?.data, 'labor_gp', 'name')
+            gross_profit.value.labor_ot = getItem(props?.data, 'labor_ot_gp', 'name')
+            gross_profit.value.miscellaneous = getItem(props?.data, 'misc_gp', 'name')
+            gross_profit.value.subcontract = getItem(props?.data, 'subcon_gp', 'name')
+        }
     })
 </script>
 
@@ -31,7 +42,7 @@
                         <div class="">GP %</div>
                         <div>Material</div>
                         <div>
-                            <div>{{ (costs.materialCosts / (1 - (gross_profit.material / 100))).toFixed(2) || 0 }}</div>
+                            <div>{{ (props.costs.materialCosts / (1 - (gross_profit.material / 100))).toFixed(2) || 0 }}</div>
                             <div class="text-xs text-neutral-600">(total material cost / (1 - {{ gross_profit.material }} %))</div>
                         </div>
                         <div>
@@ -46,7 +57,7 @@
                         </div>
                         <div>Labor</div>
                         <div>
-                            <div>{{ (costs.laborCosts.laborHours * gross_profit.labor).toFixed(2) || 0 }}</div>
+                            <div>{{ (props.costs.laborCosts.laborHours * gross_profit.labor).toFixed(2) || 0 }}</div>
                             <div class="text-xs text-neutral-600">(labor hours * {{ gross_profit.labor }})</div>
                         </div>
                         <div>
@@ -71,7 +82,7 @@
                         </div>
                         <div>Labor OT</div>
                         <div>
-                            <div>{{ (costs.laborCosts.overtimeHours * gross_profit.labor_ot).toFixed(2) || 0 }}</div>
+                            <div>{{ (props.costs.laborCosts.overtimeHours * gross_profit.labor_ot).toFixed(2) || 0 }}</div>
                             <div class="text-xs text-neutral-600">(OT hours * {{ gross_profit.labor_ot }})</div>
                         </div>
                         <div>
@@ -96,7 +107,7 @@
                         </div>
                         <div>Miscellaneous</div>
                         <div>
-                            <div>{{ (costs.miscellaneousCosts / (1 - (gross_profit.miscellaneous / 100))).toFixed(2) || 0 }}</div>
+                            <div>{{ (props.costs.miscellaneousCosts / (1 - (gross_profit.miscellaneous / 100))).toFixed(2) || 0 }}</div>
                             <div class="text-xs text-neutral-600">(total miscellaneous cost / (1 - {{ gross_profit.miscellaneous }} %))</div>
                         </div>
                         <div>
@@ -111,7 +122,7 @@
                         </div>
                         <div>Subcontract</div>
                         <div>
-                            <div>{{ (costs.subscontractCosts / (1 - (gross_profit.subcontract / 100))).toFixed(2) || 0 }}</div>
+                            <div>{{ (props.costs.subscontractCosts / (1 - (gross_profit.subcontract / 100))).toFixed(2) || 0 }}</div>
                             <div class="text-xs text-neutral-600">(total subcontract cost / (1 - {{ gross_profit.subcontract }} %))</div>
                         </div>
                         <div>
@@ -134,11 +145,11 @@
                     </div>
                     <div class="col-span-2">
                         <strong>
-                            {{ ((costs.materialCosts / (1 - (gross_profit.material / 100))) +
-                                (costs.laborCosts.laborHours * gross_profit.labor) +
-                                (costs.laborCosts.overtimeHours * gross_profit.labor_ot) +
-                                (costs.miscellaneousCosts / (1 - (gross_profit.miscellaneous / 100))) +
-                                (costs.subscontractCosts / (1 - (gross_profit.subcontract / 100)))).toFixed(2) || 0
+                            {{ ((props.costs.materialCosts / (1 - (gross_profit.material / 100))) +
+                                (props.costs.laborCosts.laborHours * gross_profit.labor) +
+                                (props.costs.laborCosts.overtimeHours * gross_profit.labor_ot) +
+                                (props.costs.miscellaneousCosts / (1 - (gross_profit.miscellaneous / 100))) +
+                                (props.costs.subscontractCosts / (1 - (gross_profit.subcontract / 100)))).toFixed(2) || 0
                             }}
                         </strong>
                         <div class="text-xs text-neutral-600">(material + labor + labor ot + miscellaneous + subcontract)</div>
