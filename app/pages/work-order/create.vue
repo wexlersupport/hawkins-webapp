@@ -144,10 +144,10 @@
         // console.log('updateItem ', updateItem)
         
 
-        return
-        scopeDetailsRef.value.sendDataToParentNow();
-        console.log('onSave', forms)
-        form.value.submit()
+        // return
+        // scopeDetailsRef.value.sendDataToParentNow();
+        // console.log('onSave', forms)
+        // form.value.submit()
     }
 
     // Function to handle API responses and errors

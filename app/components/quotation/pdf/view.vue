@@ -558,7 +558,9 @@ const storePublicPdf = () => {
         method: 'POST',
         body: formData,
       });
-      // console.log('response ', response)
+      console.log('response ', response)
+      const res = await response.json()
+      console.log('res ', res)
 
       if (response.ok) {
         // console.log('PDF uploaded successfully!');
