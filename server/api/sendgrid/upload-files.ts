@@ -9,19 +9,15 @@ export default defineEventHandler(async (event) => {
   const uploadedFilename: string[] = []
 
   try {
-    const data: any = {}
     files.forEach((file: any) => {
       const filename = file.name +'.'+ file.filename.split('.').pop();
-      const filePath = path.join(process.cwd(), 'dist/uploaded-files', filename as string);
-      data.filePath = filePath;
-      data.isDirectoryExists = fs.existsSync(path.join(process.cwd(), 'dist/uploaded-files'));
-      console.log('data ', data)
+      const filePath = path.join(process.cwd(), 'public/uploaded-files', filename as string);
 
       fs.writeFileSync(filePath, file.data);
       uploadedFilename.push(filename)
     });
 
-    return { data, uploadedFilename };
+    return uploadedFilename;
   } catch (error) {
     return { error };
   }
