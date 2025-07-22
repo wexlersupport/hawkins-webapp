@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   try {
     files.forEach((file: any) => {
       const filename = file.name +'.'+ file.filename.split('.').pop();
-      const filePath = path.join(process.cwd(), 'public/uploaded-files', filename as string);
+      const filePath = path.join(process.cwd(), './public/uploaded-files', filename as string);
       fs.writeFileSync(filePath, file.data);
       uploadedFilename.push(filename)
     });
