@@ -1,12 +1,13 @@
 <script setup lang="ts">
+    const emits = defineEmits(['open-material-list']);
     const props = defineProps<{
         items: any
     }>()
 
     const isAddEdit = ref<boolean>(false)
     const editIndex = ref<number | undefined>(undefined)
-    const mat_cost_pvs_input = ref<Number>(10)
-    const mat_cost_tax_input = ref<Number>(6)
+    const mat_cost_pvs_input = ref<any>(10)
+    const mat_cost_tax_input = ref<any>(6)
     const mat_cost_items = ref<any[]>([])
     const mat_cost_item_addedit = ref({ name: '', cost: 0 })
 
@@ -45,6 +46,14 @@
     watch(() => props.items, (newValue) => {
         mat_cost_items.value = onUpdateItems(newValue, 'mat_cost')
     });
+
+    async function onAddItem() {
+        // isAddEdit.value = true;
+        editIndex.value = undefined;
+        mat_cost_item_addedit.value = { name: '', cost: 0 }
+
+        emits('open-material-list');
+    }
 </script>
 
 <template>
@@ -54,14 +63,19 @@
                 <div class="flex justify-between items-center">
                     <h2>Material Costs</h2>
                     <UTooltip arrow text="Add item">
-                        <UButton @click="isAddEdit = true; editIndex = undefined; mat_cost_item_addedit = { name: '', cost: 0 }" class="cursor-pointer" size="sm" icon="i-lucide-plus" />
+                        <UButton @click="onAddItem" class="cursor-pointer" size="sm" icon="i-lucide-plus" />
                     </UTooltip>
                 </div>
             </template>
             <template #default>
                 <div class="pb-1" v-for="(item, index) in mat_cost_items" :key="index">
-                    <div class="grid grid-cols-3 text-nowrap text-neutral-400">
-                        <div>{{ item.name }}</div>
+                    <div class="grid grid-cols-4 text-nowrap text-neutral-400">
+                        <div class="flex flex-col col-span-2">
+                            {{ item.name }}
+                            <div class="text-xs text-neutral-600 italic" v-if="item.search_term">
+                                {{ `search term: ${item.search_term}` }}
+                            </div>
+                        </div>
                         <div class="text-right">{{ item.cost.toFixed(2) }}</div>
                         <div class="text-right space-x-1">
                             <UTooltip arrow text="Edit item">

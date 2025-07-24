@@ -10,6 +10,7 @@
     const laborCostsRef = ref<any>(null)
     const subscontractCostsRef = ref<any>(null)
     const biddingPriceRef = ref<any>(null)
+    const materialsModalRef = ref<any>(null)
 
     const quotationDetails = ref<any>(null)
     const mat_cost = ref<any[]>([])
@@ -261,8 +262,18 @@
         navigateTo('/quotation/pdf?quotation_id=' + quotationId + '&work_order_id=' + work_order_id.value)
     }
 
-    watch(() => costs, (newValue) => {
-    }, { deep: true })
+    async function onUpdateMaterials(product: any) {
+        materialCostsRef.value?.mat_cost_items.push({
+            name: product.name,
+            cost: Number(product.cost) * Number(product.quantity),
+        })
+
+        toast.add({
+            title: 'Updated!',
+            description: `Materials successfully updated!`,
+            duration: toastDuration.value
+        })
+    }
 
 </script>
 
@@ -289,7 +300,7 @@
                         class="border rounded-md p-6 my-4 border-neutral-800"
                     />
                     <div v-if="!isLoading" class="grid grid-cols-1 md:grid-cols-2 gap-y-2 pb-4 border-b-2 border-neutral-800">
-                        <QuotationMaterialCosts ref="materialCostsRef" :items="mat_cost" />
+                        <QuotationMaterialCosts ref="materialCostsRef" :items="mat_cost" @open-material-list="materialsModalRef.onModalOpen()" />
                         <QuotationMiscellaneousCosts ref="miscellaneousCostsRef" :items="misc_cost" />
                         <QuotationLaborCosts ref="laborCostsRef" :items="labor_cost" />
                         <QuotationSubscontractCosts ref="subscontractCostsRef" :items="subcon_cost" />
@@ -315,6 +326,9 @@
                             </div>
                         </div>
                     </div>
+
+                    <UiModalMaterials ref="materialsModalRef" v-if="!isLoading"
+                        @on-update-materials="onUpdateMaterials" />
                 </template>
 
                 <template #footer v-if="!isLoading">

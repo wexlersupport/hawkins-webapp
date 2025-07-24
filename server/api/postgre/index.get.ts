@@ -2,11 +2,11 @@ import { neon } from '@netlify/neon';
 import { defineEventHandler, getQuery } from 'h3'; // Or directly from 'nitropack/dist/runtime/utils'
 
 export default defineEventHandler(async (event) => {
-  const { table } = getQuery(event)
+  const { table, isDesc } = getQuery(event)
   // console.log('table ', table)
   const sql = neon(); // automatically uses env NETLIFY_DATABASE_URL
   try {
-    const query = `SELECT * FROM ${table} ORDER BY id ASC`;
+    const query = `SELECT * FROM ${table} ORDER BY id ${isDesc ? 'DESC' : 'ASC'}`;
     const data = await sql(query);
     // console.log('data ', data)
 

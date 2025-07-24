@@ -43,7 +43,7 @@
     type Schema = v.InferOutput<typeof schema>
 
     async function onSubmit(event: FormSubmitEvent<Schema>) {
-        console.log('emailObj', emailObj, event)
+        // console.log('emailObj', emailObj, event)
 
         const response_send_quotation = await fetch('/api/sendgrid/send-quotation', {
             method: 'POST',

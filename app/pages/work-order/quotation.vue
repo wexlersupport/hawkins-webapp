@@ -12,19 +12,53 @@
     const subscontractCostsRef = ref<any>(null)
     const biddingPriceRef = ref<any>(null)
     const extraDeductMoney = ref<number>(0)
-    const sendEmailModal = ref<any>(null)
+    // const sendEmailModal = ref<any>(null)
+    const materialsModalRef = ref<any>(null)
+    const material_items = ref<any[]>([])
 
     const created_at = formatJsDateToDatetime(new Date())
     const quotation_id = ref<any>(null)
+    const material_list = ref<any>(null)
     const query = { table: 'quotation_details' }
 
     onMounted(async () => {
         isLoading.value = true
         const { response } = await fetchWorkOrderId()
         workOrderDetail.value = response
-        
+        material_list.value = await fetchMaterials()
+
         isLoading.value = false
+
+        setTimeout(() => {
+            onAutoGenerateMaterials()
+        }, 1000)
     })
+
+    async function onAutoGenerateMaterials() {
+        const search_value: any[] = ['wall plate', '120v', 'cable'];
+        const searchResultsAsObjects = combinedSingleObjectMatchSearch(search_value, material_list.value);
+        console.log('Search Results:', searchResultsAsObjects);
+        if (searchResultsAsObjects) {
+            searchResultsAsObjects.forEach((term: any) => {
+                if (term) {
+                    // console.log(`Search result for "${term}":`, searchResult);
+                    materialCostsRef.value?.mat_cost_items.push({
+                        search_term: term.search_term,
+                        name: term.name,
+                        cost: Number(term.cost),
+                    })
+                }
+            });
+        }
+    }
+
+    async function fetchMaterials() {
+        const { data } = await useFetch('/api/postgre', {
+            query: { table: 'materials', isDesc: true },
+        });
+
+        return data.value?.data || [];
+    }
 
     async function fetchWorkOrderId() {
         isLoading.value = true
@@ -192,6 +226,19 @@
         return promises
     }
 
+    async function onUpdateMaterials(product: any) {
+        materialCostsRef.value?.mat_cost_items.push({
+            name: product.name,
+            cost: Number(product.cost) * Number(product.quantity),
+        })
+
+        toast.add({
+            title: 'Updated!',
+            description: `Materials successfully updated!`,
+            duration: 3000,
+        })
+    }
+
 </script>
 
 <template>
@@ -221,7 +268,7 @@
                         class="border rounded-md p-6 my-4 border-neutral-800"
                     />
                     <div v-if="!isLoading" class="grid grid-cols-1 md:grid-cols-2 gap-y-2 pb-4 border-b-2 border-neutral-800">
-                        <QuotationMaterialCosts ref="materialCostsRef" :items="[]" />
+                        <QuotationMaterialCosts ref="materialCostsRef" :items="material_items" @open-material-list="materialsModalRef.onModalOpen()" />
                         <QuotationMiscellaneousCosts ref="miscellaneousCostsRef" :items="[]" />
                         <QuotationLaborCosts ref="laborCostsRef" :items="[]" />
                         <QuotationSubscontractCosts ref="subscontractCostsRef" :items="[]" />
@@ -248,6 +295,9 @@
                             </div>
                         </div>
                     </div>
+
+                    <UiModalMaterials ref="materialsModalRef" v-if="!isLoading"
+                        @on-update-materials="onUpdateMaterials" />
                 </template>
 
                 <template #footer v-if="!isLoading">
