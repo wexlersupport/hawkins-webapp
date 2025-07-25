@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     //     upload_files_res = parseBody.upload_files_res
     // }
     try {
-        const { from, to, subject, html, filename } = parseBody.emailObj
+        const { from, to, subject, html, filename, content } = parseBody.emailObj
         const sendContent: any = { from, to, subject, html }
         if (sendContent.html) {
             sendContent.html = convertHtmlEmail(html)
@@ -33,8 +33,9 @@ export default defineEventHandler(async (event) => {
         // }
         
         // send with attachment
-        const filepath = "./public/uploaded-files/" + filename; // Adjust the path to your file
-        const content = fs.readFileSync(filepath).toString('base64');
+        // const filepath = "./public/uploaded-files/" + filename; // Adjust the path to your file
+        // const content = fs.readFileSync(blob).toString('base64');
+        // console.log('content', content)
         const attachments = [
             {
                 content,

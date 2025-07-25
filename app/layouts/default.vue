@@ -14,15 +14,6 @@ const links = [[{
     open.value = false
   }
 },
-// {
-//   label: 'Inbox',
-//   icon: 'i-lucide-inbox',
-//   to: '/inbox',
-//   badge: '4',
-//   onSelect: () => {
-//     open.value = false
-//   }
-// }, 
 {
   label: 'Work Order',
   icon: 'i-material-symbols-lists',
@@ -83,6 +74,24 @@ const links = [[{
 //   to: 'https://github.com/nuxt/ui-pro',
 //   target: '_blank'
 // }
+// ],[
+//     {
+//       label: 'Material',
+//       icon: 'i-lucide-settings',
+//       to: '/material',
+//       onSelect: () => {
+//         open.value = false
+//       }
+//     },
+//     {
+//       label: 'Inbox',
+//       icon: 'i-lucide-inbox',
+//       to: '/inbox',
+//       badge: '4',
+//       onSelect: () => {
+//         open.value = false
+//       }
+//     }
 ]] satisfies NavigationMenuItem[][]
 
 const groups = computed(() => [{
@@ -150,6 +159,7 @@ onMounted(async () => {
           orientation="vertical"
           tooltip
           popover
+          class="border-b border-default"
         />
 
         <UNavigationMenu

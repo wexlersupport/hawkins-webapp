@@ -11,7 +11,8 @@
         to: '',
         subject: 'Test Subject',
         html: '<p>Hi,</p><p><br></p><p>See the attached quote and let me know how you would like to proceed.</p><p><br></p><p>Thank you.</p>',
-        filename: 'test.pdf'
+        filename: 'test.pdf',
+        content: '',
     })
     const props = defineProps<{
         data: any,
@@ -45,12 +46,13 @@
     async function onSubmit(event: FormSubmitEvent<Schema>) {
         // console.log('emailObj', emailObj, event)
 
+        emailObj.content = props.data.pdf_base64
         const response_send_quotation = await fetch('/api/sendgrid/send-quotation', {
             method: 'POST',
             body: JSON.stringify({emailObj})
         })
         const send_quotation_res = await response_send_quotation.json()
-        console.log('send_quotation_res ', send_quotation_res)
+        // console.log('send_quotation_res ', send_quotation_res)
 
         if (send_quotation_res?.data?.id || (send_quotation_res.length > 0 && send_quotation_res[0].statusCode)) {
             toast.add({

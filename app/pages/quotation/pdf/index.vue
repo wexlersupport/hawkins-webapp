@@ -2,11 +2,10 @@
     const route = useRoute()
 
     const quotation_id = Number(route.query.quotation_id as string)
-    console.log('quotation_id ' , quotation_id)
     const work_order_id = Number(route.query.work_order_id as string)
-    console.log('work_order_id ' , work_order_id)
     const isLoading = ref<boolean>(true)
     const pdfViewRef = ref<any>(null)
+    const pdfBase64 = ref<any>(null)
     const sendEmailModalRef = ref<any>(null)
     const quotationDetails = ref<any>(null)
     const workOrderDetail = ref<any>(null)
@@ -32,6 +31,7 @@
             quotation_details: quotationDetails.value,
             work_order_details: workOrderDetail.value,
             customer_details: customerDetail.value,
+            pdf_base64: pdfBase64.value,
         }
     })
 
@@ -67,7 +67,31 @@
     }
 
     async function onComposeEmailModal() {
+        onUpdatePdf()
+
         sendEmailModalRef.value.onModalOpen()
+    }
+
+    const blobToBase64 = (blob: any) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                // The result will be a data URL (e.g., "data:application/pdf;base64,JVBERi...")
+                // We only need the base64 part, so we remove the "data:type/subtype;base64," prefix
+                const base64String = reader?.result?.split(',')[1];
+                resolve(base64String);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    };
+
+    async function onUpdatePdf() {
+        if (pdfViewRef.value) {
+            pdfViewRef.value.pdfDoc.getBlob(async (blob: Blob) => {
+                pdfBase64.value = await blobToBase64(blob);
+            });
+        }
     }
 </script>
 

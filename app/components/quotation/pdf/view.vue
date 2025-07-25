@@ -18,7 +18,13 @@ const scope_work = ref<string>()
 const final_price = ref<Number>(0)
 const final_price_word = ref<string>('')
 
+// usePDFMake is provided by the nuxt-pdfmake module
+const { $pdfMake } = useNuxtApp();
+const pdfLink = ref<string | null>(null);
+const pdfDoc = ref<any>();
+
 defineExpose({
+    pdfDoc,
     downloadPdf
 })
 
@@ -39,14 +45,8 @@ onMounted(async () => {
   }
 
   generatePdf()
-  storePublicPdf()
+  // storePublicPdf()
 });
-
-// usePDFMake is provided by the nuxt-pdfmake module
-const { $pdfMake } = useNuxtApp();
-
-const pdfLink = ref<string | null>(null);
-const pdfDoc = ref<any>();
 
 const generatePdf = () => {
   // Define your PDF document structure using pdfmake's declarative syntax
@@ -544,10 +544,11 @@ const generatePdf = () => {
 async function downloadPdf() {
   pdfDoc.value.download(`${pdf_name.value}.pdf`);
 
-  storePublicPdf()
+  // storePublicPdf()
 }
 
 const storePublicPdf = () => {
+  /*
   // 1. Get the PDF as a Blob
   pdfDoc.value.getBlob(async (blob: Blob) => {
     // console.log('PDF Blob generated:', blob);
@@ -571,6 +572,7 @@ const storePublicPdf = () => {
       console.error('Error uploading PDF:', error);
     }
   });
+  */
 }
 </script>
 
