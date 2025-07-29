@@ -6,7 +6,15 @@
     const toast = useToast()
     const form: any = useTemplateRef('form')
     const open = ref<boolean>(false)
-    const emailObj = reactive({
+    type EmailObj = {
+        from: string,
+        to: string,
+        subject: string,
+        html: string,
+        filename: string,
+        content?: string,
+    }
+    const emailObj = reactive<EmailObj>({
         from: 'francis.regala@strattonstudiogames.com',
         to: '',
         subject: 'Test Subject',
@@ -55,6 +63,20 @@
         // console.log('send_quotation_res ', send_quotation_res)
 
         if (send_quotation_res?.data?.id || (send_quotation_res.length > 0 && send_quotation_res[0].statusCode)) {
+            delete emailObj.content
+            const created_at = formatJsDateToDatetime(new Date())
+            const createItem = await handleApiResponse($fetch('/api/postgre', {
+                query: { table: 'email' },
+                method: 'POST',
+                body: { 
+                    ...emailObj,
+                    created_at,
+                    status: 'sent',
+                    quotation_id: props?.data?.quotation_id,
+                    work_order_id: props?.data?.work_order_id
+                }
+            }));
+
             toast.add({
                 title: 'Success',
                 description: 'Your email was successfully sent!',

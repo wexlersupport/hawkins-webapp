@@ -17,10 +17,16 @@ export default defineEventHandler(async (event) => {
                 statusMessage: 'Fields is required'
             })
         }
+        const quotedFields = fields.map((field: string) => {
+            if (field === 'from' || field === 'to') {
+                return `"${field}"`;
+            }
+            return field;
+        });
         const placeholders = fields.map((field: any, index: number) => `$${index+1}`).join(", "); // e.g., '$1, $2, $3'
         // console.log('placeholders ', placeholders)
 
-        const query = `INSERT INTO ${table} (${fields.join(", ")})
+        const query = `INSERT INTO ${table} (${quotedFields.join(", ")})
                 VALUES (${placeholders}) RETURNING *`;
         // console.log('query ', query)
         const [data] = await sql(query, values);
