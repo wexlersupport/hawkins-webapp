@@ -19,6 +19,7 @@
     const created_at = formatJsDateToDatetime(new Date())
     const quotation_id = ref<any>(null)
     const material_list = ref<any>(null)
+    const work_completed = ref<any>(null)
     const query = { table: 'quotation_details' }
 
     onMounted(async () => {
@@ -26,16 +27,31 @@
         const { response } = await fetchWorkOrderId()
         workOrderDetail.value = response
         material_list.value = await fetchMaterials()
+        const { response: res } = await fetchWorkCompleted()
+        work_completed.value = res?.data || []
+        console.log('Work Completed: ', work_completed.value)
 
         isLoading.value = false
 
-        setTimeout(() => {
-            onAutoGenerateMaterials()
+        setTimeout(async() => {
+            if (!work_completed.value || work_completed.value.length === 0) {
+                console.log('No work completed data available.');
+            } else {
+                await onAutoGenerateMaterials()
+                await onAutoGenerateMisc()
+            }
         }, 1000)
     })
 
     async function onAutoGenerateMaterials() {
-        const search_value: any[] = ['wall plate', '120v', 'cable'];
+        // Type = 4 is for materials
+        const search_value: any[] = work_completed.value?.filter((item: any) => item.Type === 4).map((_item: any) => _item.Description) || [];
+        console.log('Search Value:', search_value);
+        if (!search_value || search_value.length === 0) {
+            console.log('No search terms provided.');
+            return;
+        }
+
         const searchResultsAsObjects = combinedSingleObjectMatchSearch(search_value, material_list.value);
         console.log('Search Results:', searchResultsAsObjects);
         if (searchResultsAsObjects) {
@@ -50,6 +66,29 @@
                 }
             });
         }
+    }
+
+    async function onAutoGenerateMisc() {
+        // Type = 2,3,5 is for miscellaneous
+        const search_value: any[] = work_completed.value?.filter((item: any) => [2, 3, 5].includes(item.Type))
+        // console.log('Misc Search Value:', search_value);
+        search_value.forEach((item: any, index: number) => {
+            miscellaneousCostsRef.value?.misc_cost_items.push({
+                name: item.Description || 'Miscellaneous ' + (index + 1),
+                cost: Number(item.PriceTotal) || Number(item.CostRate) || 0,
+            })
+        });
+    }
+
+    async function fetchWorkCompleted() {
+        const response = await fetch('/api/vista/work-completed-search', {
+            method: 'POST',
+            body: JSON.stringify({
+                filterObj: {value: +work_order_id, propertyName: 'WorkOrder', operator: 'Equal'},
+            })
+        })
+        const res = await response.json()
+        return res
     }
 
     async function fetchMaterials() {

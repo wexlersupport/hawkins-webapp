@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     // const modifiedUtcBefore = parseBody.modifiedUtcBefore
 
     try {
-        const { data } = await axios.post(vistaApiUrl+vistaSubscriptionCode+'/vista/sm/2/data/work_orders/cache/search',
+        const { data } = await axios.post(vistaApiUrl+vistaSubscriptionCode+'/vista/sm/2/data/wo_work_completeds/cache/search',
         {
             filters: [filterObj]
             // modifiedUtcAfter,
