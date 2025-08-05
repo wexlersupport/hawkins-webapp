@@ -92,6 +92,22 @@ export async function handleApiResponse(responsePromise: any) {
     }
 };
 
+export function convertCurrencyToNumber(currencyString:string): number {
+  // Check if the input is a string to avoid errors
+  if (typeof currencyString !== 'string') {
+    console.error("Input is not a string.");
+    return NaN; // Return NaN (Not a Number) for invalid input
+  }
+
+  // Use a regular expression to remove the dollar sign ($) and commas (,)
+  const cleanedString = currencyString.replace(/[\$,]/g, '');
+
+  // Convert the cleaned string to a floating-point number
+  const numberValue = parseFloat(cleanedString);
+
+  return numberValue;
+}
+
 export function convertHtmlEmail(body: any) {
   return `<html>
               <head>
