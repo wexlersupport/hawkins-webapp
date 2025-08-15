@@ -108,6 +108,16 @@ export function convertCurrencyToNumber(currencyString:string): number {
   return numberValue;
 }
 
+export function filterStringsByIndex(arrayIndex: any, arrayString: any) {
+  // Use the map() method to create a new array.
+  // It iterates over each element (which is an index) in arrayIndex.
+  const filteredStrings = arrayIndex.map((index: any) => {
+    // Return the string from arrayString at the current index.
+    return arrayString[index];
+  });
+  return filteredStrings.filter((item: any) => item !== undefined);
+}
+
 export function convertHtmlEmail(body: any) {
   return `<html>
               <head>

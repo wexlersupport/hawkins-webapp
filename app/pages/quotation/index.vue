@@ -10,7 +10,7 @@
 
     const quotationData = ref<any>(null)
     const query = { table: 'quotation_details' }
-    const { data } = await useFetch('/api/postgre/quotation/group_quotation_id', {
+    const { data, refresh } = await useFetch('/api/postgre/quotation/group_quotation_id', {
         query
     });
 
@@ -22,26 +22,33 @@
     const table = useTemplateRef('table')
 
     onMounted(async () => {
-        quotationData.value = data.value?.data
-        isLoading.value = false
-        const _data = data.value?.data
-        // console.log('_data ', _data)
-        _data?.forEach(async (d: any) => {
-            const response = await fetchQuotationId(d)
-            const _index = quotationData.value.findIndex((item: any) => item?.quotation_id === d?.quotation_id)
-            if (_index >= 0) {
-                quotationData.value[_index].data = response?.data
-                quotationData.value[_index].mat_cost_items = getTotalMaterialCosts(response?.data)
-                quotationData.value[_index].misc_cost_items = getTotalCosts(response?.data, 'misc_cost')
-                quotationData.value[_index].sub_cost_items = getTotalCosts(response?.data, 'subcon_cost')
-                quotationData.value[_index].labor_cost_items = getLaborCosts(response?.data)
-                quotationData.value[_index].bidding_price = getBiddingPrice(response?.data)
-                quotationData.value[_index].final_price = getFinalPrice(response?.data)
-            }
-        })
-        // console.log('quotationData ', quotationData.value)
-
+        await onUpdateQuotation()
     })
+
+    async function onUpdateQuotation() {
+        refresh()
+
+        setTimeout(() => {
+            rowSelection.value = {}
+            quotationData.value = data.value?.data
+            const _data = data.value?.data
+            _data?.forEach(async (d: any) => {
+                const response = await fetchQuotationId(d)
+                const _index = quotationData.value.findIndex((item: any) => item?.quotation_id === d?.quotation_id)
+                if (_index >= 0) {
+                    quotationData.value[_index].data = response?.data
+                    quotationData.value[_index].mat_cost_items = getTotalMaterialCosts(response?.data)
+                    quotationData.value[_index].misc_cost_items = getTotalCosts(response?.data, 'misc_cost')
+                    quotationData.value[_index].sub_cost_items = getTotalCosts(response?.data, 'subcon_cost')
+                    quotationData.value[_index].labor_cost_items = getLaborCosts(response?.data)
+                    quotationData.value[_index].bidding_price = getBiddingPrice(response?.data)
+                    quotationData.value[_index].final_price = getFinalPrice(response?.data)
+                }
+            })
+            // console.log('quotationData ', quotationData.value)
+            isLoading.value = false
+        }, 2000)
+    }
     
     const filteredRows = computed(() => {
         // console.log('Filtered rows search:', search.value)
@@ -296,10 +303,8 @@
     })
 
     function select(row: TableRow<any>, e?: Event) {
-        console.log('Row selected:', row)
-
         row.toggleSelected(!row.getIsSelected())
-        console.log(e)
+        // console.log('Row selected:', table.value?.tableApi.getRowModel(), row, rowSelection.value)
     }
 
     async function fetchQuotationId(quote: any) {
@@ -335,6 +340,26 @@
                 />
 
                 <div class="flex flex-wrap items-center gap-1.5">
+                    <CustomersDeleteModal
+                        :rowSelection="rowSelection"
+                        :table="table"
+                        :count="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
+                        @on-update-quotation="onUpdateQuotation"
+                    >
+                        <UButton
+                        v-if="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
+                        label="Delete"
+                        color="error"
+                        variant="subtle"
+                        icon="i-lucide-trash"
+                        >
+                        <template #trailing>
+                            <UKbd>
+                            {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length }}
+                            </UKbd>
+                        </template>
+                        </UButton>
+                    </CustomersDeleteModal>
                     <!-- <USelect
                         v-model="statusFilter"
                         :items="[

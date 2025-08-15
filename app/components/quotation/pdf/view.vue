@@ -14,7 +14,7 @@ const contact_phone = ref<string>('')
 
 const quotation_details = ref<any>()
 const quote_date = ref<string>()
-const scope_work = ref<string>()
+const scope_work = ref<any>([])
 const final_price = ref<Number>(0)
 const final_price_word = ref<string>('')
 
@@ -39,6 +39,9 @@ onMounted(async () => {
     quotation_details.value = props?.data?.quotation_details?.data ?? []
     quote_date.value = convertDateFormat(quotation_details.value[0]?.created_at) ?? ''
     scope_work.value = props?.data?.work_order_details?.ScopeDetails[0].Description ?? '';
+    if (props?.data?.work_order_details?.ScopeDetails.length > 0) {
+      scope_work.value = props?.data?.work_order_details?.ScopeDetails.map((item: any) => item.Description) ?? [];
+    }
 
     final_price.value = getFinalPrice(quotation_details.value) ?? 0
     final_price_word.value = convertNumberToWords(final_price.value, { currencyName: "dollar", currencyNamePlural: "dollars", subCurrencyName: "cent", subCurrencyNamePlural: "cents", leadingAnd: true })
@@ -173,7 +176,13 @@ const generatePdf = () => {
               ],
               // Data Rows
               [
-                { text: `- ${scope_work.value}`, colSpan: 2, style: "tableKey", margin: [10, 0, 0, 0] },
+                {
+                  stack: [
+                    {
+                      ul: scope_work.value
+                    }
+                  ], colSpan: 2, style: "tableKey", margin: [10, 0, 0, 0]
+                },
                 {}
               ]
             ],
