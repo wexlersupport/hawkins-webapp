@@ -291,6 +291,7 @@
         </template>
         <template #body>
             <div class="flex items-center justify-end">
+                <UButton @click="onSave" :loading="isLoadingSave" class="cursor-pointer mx-2" label="SAVE DATA" icon="i-lucide-save" />
                 <UButton @click="gotoGeneratePdf" :loading="isLoadingSave" class="cursor-pointer" label="GENERATE PDF" icon="i-lucide-file-text" color="info" />
             </div>
             <UCard :ui="{ root: 'rounded-lg overflow-y-auto' }">
