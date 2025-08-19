@@ -23,14 +23,39 @@
     const updated_at = formatJsDateToDatetime(new Date())
     const created_at = formatJsDateToDatetime(new Date())
     const query = { table: 'quotation_details' }
+    const material_list = ref<any>(null)
+    const work_completed = ref<any>(null)
 
     onMounted(async () => {
         isLoading.value = true
+        material_list.value = await fetchMaterials()
         quotationDetails.value = await fetchQuotationId()
         work_order_id.value = quotationDetails.value?.data[0].work_order_id ?? 0
 
-        mat_cost.value = quotationDetails.value?.data.filter((d: any) => d.item.includes('mat_cost'))
-        misc_cost.value = quotationDetails.value?.data.filter((d: any) => d.item.includes('misc_cost'))
+        const existing_costs = quotationDetails.value?.data.filter((d: any) => d.item === 'mat_cost' || d.item === 'misc_cost')
+        
+        const { response: res } = await fetchWorkCompleted()
+        work_completed.value = res?.data || []
+
+        if (existing_costs.length < work_completed.value?.length) {
+            const costs_ids = existing_costs.map((cost: any) => Number(cost.id))
+            if (costs_ids.length > 0) {
+                const deleteItem = await onDeleteQuotationIds('id', costs_ids.join(','))
+                // console.log('costsdeleteItem_ids ', deleteItem)
+            }
+
+            await onAutoGenerateMaterials()
+            await onAutoGenerateMisc()
+
+            setTimeout(() => {
+                onSaveMatMisc()
+            }, 1000);
+        }
+
+        quotationDetails.value = await fetchQuotationId()
+
+        mat_cost.value = [...mat_cost.value, ...quotationDetails.value?.data.filter((d: any) => d.item.includes('mat_cost'))]
+        misc_cost.value = [...misc_cost.value, ...quotationDetails.value?.data.filter((d: any) => d.item.includes('misc_cost'))]
         subcon_cost.value = quotationDetails.value?.data.filter((d: any) => d.item.includes('subcon_cost'))
         labor_cost.value = quotationDetails.value?.data.filter((d: any) => d.item.includes('labor_cost'))
         extraDeductMoney.value = getItem(quotationDetails.value?.data, 'extra_deduct', 'name')
@@ -70,6 +95,48 @@
         return data
     }
 
+    async function onAutoGenerateMaterials() {
+        // Type = 4 is for materials
+        const search_value: any[] = work_completed.value?.filter((item: any) => item.Type === 4).map((_item: any) => _item.Description) || [];
+        // console.log('Search Value:', search_value);
+        if (!search_value || search_value.length === 0) {
+            // console.log('No search terms provided.');
+            return;
+        }
+
+        const searchResultsAsObjects = combinedSingleObjectMatchSearch(search_value, material_list.value);
+        // console.log('Search Results:', searchResultsAsObjects);
+        if (searchResultsAsObjects) {
+            searchResultsAsObjects.forEach((term: any) => {
+                if (term) {
+                    // console.log(`Search result for "${term}":`, searchResult);
+                    mat_cost.value.push({
+                        item: 'mat_cost',
+                        work_order_id: work_order_id.value,
+                        search_term: term.search_term,
+                        name: term.name,
+                        cost: Number(term.cost),
+                    })
+                }
+            });
+        }
+    }
+
+    async function onAutoGenerateMisc() {
+        // Type = 2,3,5 is for miscellaneous
+        const search_value: any[] = work_completed.value?.filter((item: any) => item.Type !== 4)
+        // console.log('Misc Search Value:', search_value);
+        search_value.forEach((item: any, index: number) => {
+            misc_cost.value.push({
+                item: 'misc_cost',
+                work_order_id: work_order_id.value,
+                name: item.Description || 'Miscellaneous ' + (index + 1),
+                cost: Number(item.PriceTotal) || Number(item.CostRate) || 0,
+            })
+        });
+        // console.log('Misc misc_cost:', misc_cost.value);
+    }
+
     async function onDelete() {
         if (confirm('Are you sure you want to delete?')) {
             isLoadingSave.value = true
@@ -96,6 +163,19 @@
             }, Number(toastDuration.value));
         }
     }
+
+    async function onDeleteQuotationIds(dynamic_field: string, value: Number) {
+        const deleteItem = await handleApiResponse($fetch(`/api/postgre/quotation/delete_quotation`, {
+                query: {
+                    table: 'quotation_details',
+                    dynamic_field: dynamic_field,
+                    value: value,
+                },
+                method: 'DELETE'
+            }));
+        return deleteItem
+    }
+    
 
     async function onDeleteQuotation(dynamic_field: string, value: Number) {
         return handleApiResponse($fetch(`/api/postgre/dynamic_field`, {
@@ -129,6 +209,23 @@
         console.log('promiseDeletion ', promiseDeletion)
 
         return promiseDeletion
+    }
+
+    async function onSaveMatMisc() {
+        const mat_promises = await onMatCostSave()
+        const misc_promises = await onMiscCostSave()
+
+        Promise.all([...mat_promises, ...misc_promises]).then(async (response) => {
+            // console.log('All promises resolved:', response);
+            quotationDetails.value = await fetchQuotationId()
+            mat_cost.value = quotationDetails.value?.data.filter((d: any) => d.item.includes('mat_cost'))
+            misc_cost.value = quotationDetails.value?.data.filter((d: any) => d.item.includes('misc_cost'))
+        }).catch(async (error) => {
+            console.log("Promise.all caught an error:", error);
+        })
+        .finally(() => {
+            // console.log("Promise.all finished.");
+        });
     }
 
     async function onSave() {
@@ -273,6 +370,25 @@
             description: `Materials successfully updated!`,
             duration: toastDuration.value
         })
+    }
+
+    async function fetchWorkCompleted() {
+        const response = await fetch('/api/vista/work-completed-search', {
+            method: 'POST',
+            body: JSON.stringify({
+                filterObj: {value: +work_order_id.value, propertyName: 'WorkOrder', operator: 'Equal'},
+            })
+        })
+        const res = await response.json()
+        return res
+    }
+
+    async function fetchMaterials() {
+        const { data } = await useFetch('/api/postgre', {
+            query: { table: 'materials', isDesc: true },
+        });
+
+        return data.value?.data || [];
     }
 
 </script>

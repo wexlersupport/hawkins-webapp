@@ -70,7 +70,7 @@
 
     async function onAutoGenerateMisc() {
         // Type = 2,3,5 is for miscellaneous
-        const search_value: any[] = work_completed.value?.filter((item: any) => [2, 3, 5].includes(item.Type))
+        const search_value: any[] = work_completed.value?.filter((item: any) => item.Type !== 4)
         // console.log('Misc Search Value:', search_value);
         search_value.forEach((item: any, index: number) => {
             miscellaneousCostsRef.value?.misc_cost_items.push({

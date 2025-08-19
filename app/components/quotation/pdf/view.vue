@@ -40,7 +40,8 @@ onMounted(async () => {
     quote_date.value = convertDateFormat(quotation_details.value[0]?.created_at) ?? ''
     scope_work.value = props?.data?.work_order_details?.ScopeDetails[0].Description ?? '';
     if (props?.data?.work_order_details?.ScopeDetails.length > 0) {
-      scope_work.value = props?.data?.work_order_details?.ScopeDetails.map((item: any) => item.Description) ?? [];
+      const details = props?.data?.work_order_details?.ScopeDetails.filter((item: any) => !item.Description.includes('New Scope')) ?? [];
+      scope_work.value = details.map((item: any) => item.Description) ?? [];
     }
 
     final_price.value = getFinalPrice(quotation_details.value) ?? 0
