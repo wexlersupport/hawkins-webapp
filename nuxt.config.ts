@@ -52,6 +52,7 @@ export default defineNuxtConfig({
       vistaApiKey: process.env.NUXT_PUBLIC_VISTA_API_KEY,
       vistaSubscriptionCode: process.env.NUXT_PUBLIC_VISTA_SUBSCRIPTION_CODE,
       sendgridApiKey: process.env.NUXT_PUBLIC_SENDGRID_API_KEY,
+      openrouterApiKey: process.env.NUXT_PUBLIC_OPENROUTER_API_KEY,
     },
   }
 })

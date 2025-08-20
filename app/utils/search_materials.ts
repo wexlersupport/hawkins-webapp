@@ -76,10 +76,15 @@ export function combinedSingleObjectMatchSearch(searchTerms: string[], materials
                     results.push({ ...match, search_term: term });
                     break;
                 } else {
-                    // if (index === wordsByTwo.length - 1) {
-                    //     console.log(`No matches found for word: ${term} - ${word}`);
-                    // }
-                    console.log(`No matches found for word: ${term} - ${word}`);
+                    if (index === wordsByTwo.length - 1) {
+                        results.push({
+                            search_term: term,
+                            name: term,
+                            cost: 0,
+                         });
+                        console.log(`No matches found for word: ${term} - ${word}`);
+                    }
+                    // console.log(`No matches found for word1: ${term} - ${word}`);
                 }
             }
         }

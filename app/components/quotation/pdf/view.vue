@@ -42,6 +42,10 @@ onMounted(async () => {
     if (props?.data?.work_order_details?.ScopeDetails.length > 0) {
       const details = props?.data?.work_order_details?.ScopeDetails.filter((item: any) => !item.Description.includes('New Scope')) ?? [];
       scope_work.value = details.map((item: any) => item.Description) ?? [];
+      const {response: generated_scope} = await generateScopeOfWork(scope_work.value[0]);
+      if (generated_scope?.choices?.length > 0) {
+        scope_work.value = [generated_scope?.choices[0]?.message?.content];
+      }
     }
 
     final_price.value = getFinalPrice(quotation_details.value) ?? 0
@@ -583,6 +587,18 @@ const storePublicPdf = () => {
     }
   });
   */
+}
+
+async function generateScopeOfWork(scope_of_works: string) {
+	const response = await fetch('/api/openrouter-ai/scope-of-works', {
+		method: 'POST',
+		body: JSON.stringify({
+			filterObj: {scope_of_works}
+		})
+	})
+	const res = await response.json()
+
+	return res
 }
 </script>
 
