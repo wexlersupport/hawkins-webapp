@@ -253,6 +253,10 @@
                         @click="materialsAddModalRef.onModalOpen()">
                         Add New Material
                     </UButton>
+                    <UButton color="neutral" icon="i-lucide-upload" class="cursor-pointer px-4"
+                        @click="navigateTo('/material/upload')">
+                        Upload TRA-SER
+                    </UButton>
                 </template>
             </UDashboardNavbar>
         </template>
