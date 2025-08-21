@@ -67,8 +67,6 @@
     }
 
     async function onComposeEmailModal() {
-        onUpdatePdf()
-
         sendEmailModalRef.value.onModalOpen()
     }
 
@@ -86,12 +84,9 @@
         });
     };
 
-    async function onUpdatePdf() {
-        if (pdfViewRef.value) {
-            pdfViewRef.value.pdfDoc.getBlob(async (blob: Blob) => {
-                pdfBase64.value = await blobToBase64(blob);
-            });
-        }
+    async function onUpdatePdf(blob: Blob) {
+        // console.log('onUpdatePdf blob', blob);
+        pdfBase64.value = await blobToBase64(blob);
     }
 </script>
 
@@ -117,7 +112,7 @@
                 <UButton @click="onComposeEmailModal" class="cursor-pointer" size="xl" label="Compose Email" icon="i-lucide-mail" color="neutral" />
             </div>
 
-            <QuotationPdfView ref="pdfViewRef" v-if="!isLoading" :data="data" />
+            <QuotationPdfView ref="pdfViewRef" v-if="!isLoading" :data="data" @on-update-pdf="onUpdatePdf" />
             <UiModalSendEmail ref="sendEmailModalRef" @download="pdfViewRef.downloadPdf()" v-if="!isLoading" :data="data" />
         </template>
     </UDashboardPanel>

@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue";
 import type { TDocumentDefinitions, TFontDictionary } from "pdfmake/interfaces";
 
+const emits = defineEmits(['on-update-pdf']);
 const props = defineProps<{
     data: any,
 }>()
@@ -11,6 +12,7 @@ const { data } = await useFetch('/api/postgre', {
 });
 const config_all = ref<any>(data.value?.data)
 
+const isLoading = ref<boolean>(true)
 const pdf_name = ref<string>('')
 const company_name = ref<string>('')
 const address_name = ref<string>('')
@@ -60,6 +62,8 @@ onMounted(async () => {
 
   generatePdf()
   // storePublicPdf()
+
+  isLoading.value = false
 });
 
 const generatePdf = () => {
@@ -547,6 +551,9 @@ const generatePdf = () => {
   // Generate the PDF
   pdfDoc.value = $pdfMake.createPdf(docDefinition);
   // console.log('pdfDoc.value ', pdfDoc.value)
+  pdfDoc.value.getBlob(async (blob: Blob) => {
+    emits('on-update-pdf', blob);
+  })
 
   // You can open, download, or get a data URL
   // To open in a new tab:
@@ -610,11 +617,15 @@ async function generateScopeOfWork(scope_of_works: string) {
 
 <template>
   <div class="container">
+    <UiAppLoading
+      v-if="isLoading"
+      class="border rounded-md p-6 my-4 border-neutral-800"
+    />
     <!-- <h1>Nuxt 3 PDF Generation with pdfmake</h1>
     <p>Click the button below to generate a sample PDF.</p> -->
      <!-- <UButton @click="downloadPdf" class="cursor-pointer mr-4" label="Download PDF" icon="i-lucide-download" /> -->
 
-    <div v-if="pdfLink" class="pdf-preview h-full pb-6">
+    <div v-if="!isLoading && pdfLink" class="pdf-preview h-full pb-6">
       <h2 class="text-gray-900">PDF Preview</h2>
       <iframe :src="pdfLink" width="100%" class="h-full pb-6"></iframe>
     </div>
