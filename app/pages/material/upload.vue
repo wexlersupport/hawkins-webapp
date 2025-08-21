@@ -1,8 +1,26 @@
 <template>
   <div class="p-4 bg-elevated rounded-lg shadow-md">
     <h2 class="text-2xl font-bold mb-4">Upload Excel File</h2>
-    
-    <form @submit.prevent="handleUpload" class="flex flex-col space-y-4">
+
+    <form :disabled="true" @submit.prevent="handleUpload" class="flex flex-col space-y-4">
+      <select
+        v-model="selectedOption"
+        class="block w-full rounded-md border-gray-300 shadow-sm 
+              focus:border-blue-500 focus:ring focus:ring-blue-200 
+              focus:ring-opacity-50 text-gray-900 text-sm p-2 bg-gray-50"
+      >
+        <option value="" disabled selected>Select a module</option>
+        <option value="wire-cord-cable">wire-cord-cable</option>
+        <option value="conduit-raceways">conduit-raceways</option>
+        <option value="conduit-accesories">conduit-accesories</option>
+        <option value="distribution-equipment">distribution-equipment</option>
+        <option value="controls">controls</option>
+        <option value="wiring-devices">wiring-devices</option>
+        <option value="miscellaneous">miscellaneous</option>
+        <option value="lightning">lightning</option>
+        <option value="builders-products">builders-products</option>
+        <option value="line-construction-material">line-construction-material</option>
+      </select>
       <input 
         type="file" 
         @change="onFileChange" 
@@ -18,50 +36,59 @@
       
       <button 
         type="submit" 
-        :disabled="isUploading"
+        :disabled="isLoading"
         class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full
                transition duration-300 ease-in-out disabled:bg-gray-400 disabled:cursor-not-allowed"
       >
-        <span v-if="isUploading">Uploading...</span>
+        <span v-if="isLoading">Uploading...</span>
         <span v-else>Upload and Save</span>
       </button>
     </form>
+
+    <UiAppLoading
+      v-if="isLoading"
+      class="border rounded-md p-6 my-4 border-neutral-800"
+    />
     
     <div v-if="message" class="mt-4 p-3 rounded-lg text-sm" :class="messageClass">
       {{ message }}
     </div>
-  </div>
-   <!-- <div>
-    <input type="file" @change="handleFileChange" accept=".xlsx, .xls" />
-    <div v-if="importedData.length">
-      <h3>Imported Data:</h3>
+
+    <div v-if="existingData.length" class="mt-6 text-sm">
       <table>
         <thead>
           <tr>
-            <th v-for="(header, index) in headers" :key="index">{{ header }}</th>
+            <th>Existing Data</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(row, index) in importedData" :key="index">
-            <td v-for="(cell, cellIndex) in row" :key="cellIndex">{{ cell }}</td>
+          <tr v-for="(row, index) in existingData" :key="index">
+            <td>{{ row }}</td>
           </tr>
         </tbody>
       </table>
     </div>
-  </div> -->
+    
+  </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
   import * as XLSX from 'xlsx';
   import { ref } from 'vue';
   import { convertCurrencyToNumber } from '@/utils';
+  const { data, refresh } = await useFetch('/api/postgre', {
+      query: { table: 'materials' }
+  });
 
+  const isLoading = ref(false);
   const fileInput = ref(null);
-  const selectedFile = ref(null);
+  const selectedFile = ref<any>(null);
+  const selectedOption = ref();
   const isUploading = ref(false);
   const message = ref('');
   const messageClass = ref('');
-  const importedData = ref([]);
+  const importedData = ref<any[]>([]);
+  const existingData = ref<any[]>([]);
 
   const onFileChange = (e) => {
     selectedFile.value = e.target.files[0];
@@ -69,16 +96,22 @@
   };
 
   const handleUpload = async (event) => {
+    if (!selectedOption.value) {
+      message.value = 'Please select a module first.';
+      messageClass.value = 'bg-yellow-100 text-yellow-800';
+      return;
+    }
+
     if (!selectedFile.value) {
       message.value = 'Please select a file first.';
       messageClass.value = 'bg-yellow-100 text-yellow-800';
       return;
     }
     
-    isUploading.value = true;
     message.value = '';
 
     try {
+        isLoading.value = true
         const reader = new FileReader();
 
         reader.onload = (e) => {
@@ -103,30 +136,78 @@
           importedData.value = json_data.slice(1);
         };
         reader.readAsBinaryString(selectedFile.value);
+        refresh(); // Refresh the data to get the latest materials
+        existingData.value = [];
 
         setTimeout(async () => {
           console.log('importedData ', importedData.value);
           if (importedData.value.length > 0) {
-            importedData.value.forEach(async (row) => {
+            const materials: any = data.value?.data
+            // console.log('materials ', materials);
+
+            for (let index = 0; index < importedData.value.length; index++) {
+              const row = importedData.value[index];
+              const existingMaterialName = materials.filter(item => item.name === row[5]);
+              const existingMaterialSku = materials.filter(item => item.sku === row[6]);
+              if (existingMaterialName.length > 0) {
+                existingData.value.push(`Existing Name: ${row[5]}, Row: ${index+1}`);
+                console.log('Name already exists, skipping row:', row[5]);
+                if ((index + 1) >= importedData.value.length) {
+                  isLoading.value = false;
+                }
+                continue; // Skip this row if material already exists
+              }
+              if (existingMaterialSku.length > 0) {
+                existingData.value.push(`Existing SKU: ${row[6]}, Row: ${index+1}`);
+                console.log('SKU already exists, skipping row:', row[6]);
+                if ((index + 1) >= importedData.value.length) {
+                  isLoading.value = false;
+                }
+                continue; // Skip this row if material already exists
+              }
               const formObj = {
-                sku: row[6],
-                name: row[5],
-                cost: convertCurrencyToNumber(row[19]) || 0,
-                description: row[8] || '',
+                image: row[0] || null,
+                allpriser_code: row[1] || null,
+                allpriser_group: row[2] || null,
+                allpriser_type: row[3] || null,
+                allpriser_description: row[4] || null,
+                name: row[5] || null,
+                sku: row[6] || null,
+                manufacturer: row[7] || null,
+                description: row[8] || null,
+                legacy_uom: row[9] || null,
+                uom: row[10] || null,
+                uom_qty: row[11] || null,
+                price_status: row[12] || null,
+                change_symbol: row[13] || null,
+                cost: convertCurrencyToNumber(row[14]) || 0,
+                col2: row[15] || null,
+                col1: row[16] || null,
+                list: row[17] || null,
+                amp: row[18] || null,
+                resale: row[19] || null,
+                category: selectedOption.value,
               };
+              // console.log('formObj ', formObj)
               const created_at = formatJsDateToDatetime(new Date());
               const createItem = await handleApiResponse($fetch('/api/postgre', {
                 query: { table: 'materials' },
                 method: 'POST',
                 body: { created_at, ...formObj }
               }));
-              console.log('Created item:', createItem);
-            });
+              // console.log('Created item:', createItem);
+
+              if ((index + 1) >= importedData.value.length) {
+                message.value = 'File uploaded successfully!: ' + selectedFile.value?.name;
+                messageClass.value = 'bg-green-100 text-green-800';
+                isLoading.value = false
+                selectedFile.value = null;
+              }
+            };
+
+            refresh(); // Refresh the data to get the latest materials
           }
         }, 1000);
-      
-      message.value = 'File uploaded successfully!';
-      messageClass.value = 'bg-green-100 text-green-800';
     } catch (error) {
       message.value = 'An error occurred during upload. Please try again.';
       messageClass.value = 'bg-red-100 text-red-800';
@@ -137,7 +218,7 @@
       if (fileInput.value) {
         fileInput.value.value = '';
       }
-      selectedFile.value = null;
+      // selectedFile.value = null;
     }
   };
 
