@@ -92,7 +92,12 @@ const links = [[{
     //     open.value = false
     //   }
     // }
-]] satisfies NavigationMenuItem[][]
+], [{
+  label: 'Settings',
+  icon: 'i-lucide-settings',
+  to: '/settings/general'
+}]
+] satisfies NavigationMenuItem[][]
 
 const groups = computed(() => [{
   id: 'links',
@@ -168,6 +173,13 @@ onMounted(async () => {
           orientation="vertical"
           tooltip
           class=""
+        />
+        <UNavigationMenu
+          :collapsed="collapsed"
+          :items="links[2]"
+          orientation="vertical"
+          tooltip
+          class="mt-auto"
         />
       </template>
 

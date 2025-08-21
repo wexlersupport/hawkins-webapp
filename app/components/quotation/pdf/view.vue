@@ -6,6 +6,11 @@ const props = defineProps<{
     data: any,
 }>()
 
+const { data } = await useFetch('/api/postgre', {
+    query: { table: 'configuration' }
+});
+const config_all = ref<any>(data.value?.data)
+
 const pdf_name = ref<string>('')
 const company_name = ref<string>('')
 const address_name = ref<string>('')
@@ -43,7 +48,8 @@ onMounted(async () => {
       const details = props?.data?.work_order_details?.ScopeDetails.filter((item: any) => !item.Description.includes('New Scope')) ?? [];
       scope_work.value = details.map((item: any) => item.Description) ?? [];
       const {response: generated_scope} = await generateScopeOfWork(scope_work.value[0]);
-      if (generated_scope?.choices?.length > 0) {
+      const config_scope_of_works = config_all.value?.find((item: any) => item.config_key === 'scope_of_works')
+      if (generated_scope?.choices?.length > 0 && config_scope_of_works.config_value === 'true') {
         scope_work.value = [generated_scope?.choices[0]?.message?.content];
       }
     }
