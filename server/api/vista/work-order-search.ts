@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     try {
         const { data } = await axios.post(vistaApiUrl+vistaSubscriptionCode+'/vista/sm/2/data/work_orders/cache/search',
         {
-            filters: [filterObj]
+            filters: filterObj
             // modifiedUtcAfter,
             // modifiedUtcBefore,
         },

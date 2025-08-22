@@ -38,7 +38,18 @@ async function fetchWorkOrder() {
   const response = await fetch('/api/vista/work-order-search', {
       method: 'POST',
       body: JSON.stringify({
-        filterObj: {value: convertDate(dateAfter), propertyName: 'RequestedDate', operator: 'GreaterThan'}
+        filterObj: [
+          {
+            value: convertDate(dateAfter),
+            propertyName: 'RequestedDate',
+            operator: 'GreaterThan'
+          },
+          {
+            propertyName: 'Description',
+            value: 'to be quoted',
+            operator: 'Contains'
+          },
+        ]
       })
   })
   const res = await response.json()
@@ -224,7 +235,7 @@ const columns: TableColumn<any>[] = [
     header: 'Status',
     filterFn: 'equals',
     cell: ({ row }) => {
-      const WOStatus = row.original.WOStatus === 0 ? 'Open' : (row.original.WOStatus === 1 ? 'WIP' : 'Completed')
+      const WOStatus = row.original.WOStatus === 0 ? 'To be Quoted' : (row.original.WOStatus === 1 ? 'WIP' : 'Completed')
       const color: any = {
         2: 'success' as const,
         1: 'warning' as const,
@@ -327,7 +338,7 @@ function select(row: TableRow<any>, e?: Event) {
             </UButton>
           </CustomersDeleteModal> -->
 
-          <USelect
+          <!-- <USelect
             v-model="statusFilter"
             :items="[
               { label: 'All', value: 'all' },
@@ -338,7 +349,7 @@ function select(row: TableRow<any>, e?: Event) {
             :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
             placeholder="Filter status"
             class="min-w-28"
-          />
+          /> -->
           <UDropdownMenu
             :items="
               table?.tableApi
