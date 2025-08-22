@@ -92,7 +92,7 @@ export async function handleApiResponse(responsePromise: any) {
     }
 };
 
-export function convertCurrencyToNumber(currencyString:string): number {
+export function convertCurrencyToNumber(currencyString:any): number {
   // Check if the input is a string to avoid errors
   if (typeof currencyString !== 'string') {
     console.error("Input is not a string.");
