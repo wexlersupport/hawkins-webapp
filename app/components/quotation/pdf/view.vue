@@ -37,12 +37,12 @@ defineExpose({
 
 onMounted(async () => {
   if (props?.data) {
-    contact_name.value = props?.data?.work_order_details?.ContactName ?? props?.data?.customer_details?.Name
-    pdf_name.value = `${contact_name.value}_${props?.data?.work_order_id}_${props?.data?.quotation_id}`
-    company_name.value = props?.data?.work_order_details?.ServiceSite ?? props?.data?.customer_details?.Name
-    contact_phone.value = props?.data?.work_order_details?.ContactPhone ?? props?.data?.customer_details?.Phone
-    address_name.value = `${props?.data?.customer_details?.BillAddress} ${props?.data?.customer_details?.BillCity}, ${props?.data?.customer_details?.BillState} ${props?.data?.customer_details?.BillZip}`
-    
+    company_name.value = props?.data?.field_service?.CustomerName ?? ''
+    pdf_name.value = `${company_name.value}_${props?.data?.work_order_id}_${props?.data?.quotation_id}`
+    contact_name.value = props?.data?.field_service?.ContactName ?? ''
+    contact_phone.value = props?.data?.field_service?.ContactPhone ?? ''
+    address_name.value = `${props?.data?.field_service?.ServiceSiteDescription ?? ''} ${props?.data?.field_service?.Address1 ?? ''} ${props?.data?.field_service?.Address2 ?? ''} ${props?.data?.field_service?.City ?? ''}, ${props?.data?.field_service?.State ?? ''} ${props?.data?.field_service?.Zip ?? ''}`
+
     quotation_details.value = props?.data?.quotation_details?.data ?? []
     quote_date.value = convertDateFormat(quotation_details.value[0]?.created_at) ?? ''
     scope_work.value = props?.data?.work_order_details?.ScopeDetails[0].Description ?? '';
@@ -351,9 +351,8 @@ const generatePdf = () => {
       ]
     },
     {
-      text: [ `Total for the above scope of work: ------------------------ `,
-        { text: `$${final_price.value.toFixed(2)}`, bold: true, fontSize: 14, color: "red" },
-        ` ------------------------`
+      text: [ `Total for the above scope of work:  `,
+        { text: `$${final_price.value.toFixed(2)}`, bold: true, fontSize: 14, color: "red" }
       ],
       margin: [0, 10, 0, 0],
       style: {

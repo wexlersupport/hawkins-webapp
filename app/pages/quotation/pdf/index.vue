@@ -1,4 +1,5 @@
 <script setup lang="ts">
+    const toast = useToast()
     const route = useRoute()
 
     const quotation_id = Number(route.query.quotation_id as string)
@@ -10,6 +11,12 @@
     const quotationDetails = ref<any>(null)
     const workOrderDetail = ref<any>(null)
     const customerDetail = ref<any>(null)
+    const fsDetail = ref<any>(null)
+    const isFsDetail = ref<boolean>(false)
+    const { data: configData } = await useFetch('/api/postgre', {
+        query: { table: 'configuration' }
+    });
+    const config_all = ref<any>(configData.value?.data)
 
     onMounted(async () => {
         isLoading.value = true
@@ -20,6 +27,15 @@
 
         const { response: customer } = await fetchCustomerId()
         customerDetail.value = customer
+
+        const { response: fs_data } = await fetchFieldService()
+        fsDetail.value = fs_data?.find((item: any) => item.WorkOrder === Number(work_order_id))
+        // console.log('Field Service Work Order: ', fsDetail.value)
+        if (!fsDetail.value) {
+            toast.add({ title: 'No Field Service Data!', description: `No Field Service data found for Work Order ID ${work_order_id}.`, color: 'error' })
+        } else {
+            isFsDetail.value = true
+        }
 
         isLoading.value = false
     })
@@ -32,8 +48,25 @@
             work_order_details: workOrderDetail.value,
             customer_details: customerDetail.value,
             pdf_base64: pdfBase64.value,
+            field_service: fsDetail.value,
         }
     })
+
+    async function fetchFieldService() {
+        const fs_x_xsrf_token = config_all.value?.find((item: any) => item.config_key === 'fs_x_xsrf_token')
+        const fs_cookie = config_all.value?.find((item: any) => item.config_key === 'fs_cookie')
+
+        const response = await fetch('/api/vista/field_service', {
+            method: 'POST',
+            body: JSON.stringify({
+                fs_cookie: fs_cookie?.config_value,
+                fs_x_xsrf_token: fs_x_xsrf_token?.config_value
+            })
+        })
+        const res = await response.json()
+
+        return res
+    }
 
     async function fetchQuotationId() {
         const data = await handleApiResponse($fetch(`/api/postgre/dynamic_field`, {
@@ -107,9 +140,14 @@
                 v-if="isLoading"
                 class="border rounded-md p-6 my-4 border-neutral-800"
             />
-            <div v-if="!isLoading" class="flex gap-x-2 px-5">
+            <div v-if="!isLoading" class="flex gap-2 px-5">
                 <UButton @click="pdfViewRef.downloadPdf()" class="cursor-pointer" size="xl" label="Download PDF" icon="i-lucide-download" color="neutral" />
                 <UButton @click="onComposeEmailModal" class="cursor-pointer" size="xl" label="Compose Email" icon="i-lucide-mail" color="neutral" />
+            </div>
+
+            <div v-if="!isLoading && !isFsDetail" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mx-5 mt-4" role="alert">
+                <p class="font-bold">Warning!</p>
+                <p>No Field Service data found for Work Order ID <b>{{ work_order_id }}</b>.</p>
             </div>
 
             <QuotationPdfView ref="pdfViewRef" v-if="!isLoading" :data="data" @on-update-pdf="onUpdatePdf" />

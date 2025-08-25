@@ -15,10 +15,18 @@
 
     onMounted(async () => {
         if (props?.items?.length > 0) {
-            laborCosts.value.laborHours = getItem(props?.items, 'labor_hours', 'name')
-            laborCosts.value.overtimeHours = getItem(props?.items, 'ot_hours', 'name')
-            laborCosts.value.laborRate = getItem(props?.items, 'labor_rate', 'name')
-            laborCosts.value.overtimeRate = getItem(props?.items, 'ot_rate', 'name')
+            if (getItem(props?.items, 'labor_hours', 'name')) {
+                laborCosts.value.laborHours = getItem(props?.items, 'labor_hours', 'name')
+            }
+            if (getItem(props?.items, 'ot_hours', 'name')) {
+                laborCosts.value.overtimeHours = getItem(props?.items, 'ot_hours', 'name')
+            }
+            if (getItem(props?.items, 'labor_rate', 'name')) {
+                laborCosts.value.laborRate = getItem(props?.items, 'labor_rate', 'name')
+            }
+            if (getItem(props?.items, 'ot_rate', 'name')) {
+                laborCosts.value.overtimeRate = getItem(props?.items, 'ot_rate', 'name')
+            }
         }
     })
 </script>

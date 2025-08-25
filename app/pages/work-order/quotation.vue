@@ -15,12 +15,18 @@
     // const sendEmailModal = ref<any>(null)
     const materialsModalRef = ref<any>(null)
     const material_items = ref<any[]>([])
+    const labor_cost = ref<any[]>([])
 
     const created_at = formatJsDateToDatetime(new Date())
     const quotation_id = ref<any>(null)
     const material_list = ref<any>(null)
     const work_completed = ref<any>(null)
     const query = { table: 'quotation_details' }
+
+    const { data } = await useFetch('/api/postgre', {
+        query: { table: 'configuration' }
+    });
+    const config_all = ref<any>(data.value?.data)
 
     onMounted(async () => {
         isLoading.value = true
@@ -30,6 +36,25 @@
         const { response: res } = await fetchWorkCompleted()
         work_completed.value = res?.data || []
         console.log('Work Completed: ', work_completed.value)
+
+        const { response: fs_data } = await fetchFieldService()
+        const fs_workorder = fs_data?.find((item: any) => item.WorkOrder === Number(work_order_id))
+        // console.log('Field Service Work Order: ', fs_workorder)
+        if (!fs_workorder) {
+            toast.add({
+                title: 'No Field Service Data!',
+                description: `No Field Service data found for Work Order ID ${work_order_id}.`,
+                color: 'error'
+            })
+        } else {
+            labor_cost.value = [
+                {
+                    item: 'labor_cost',
+                    name: 'labor_hours',
+                    cost: fs_workorder.ScopeData ? fs_workorder.ScopeData[0]?.SummaryLaborHours : 0 
+                }
+            ]
+        }
 
         isLoading.value = false
 
@@ -88,6 +113,22 @@
             })
         })
         const res = await response.json()
+        return res
+    }
+
+    async function fetchFieldService() {
+        const fs_x_xsrf_token = config_all.value?.find((item: any) => item.config_key === 'fs_x_xsrf_token')
+        const fs_cookie = config_all.value?.find((item: any) => item.config_key === 'fs_cookie')
+
+        const response = await fetch('/api/vista/field_service', {
+            method: 'POST',
+            body: JSON.stringify({
+                fs_cookie: fs_cookie?.config_value,
+                fs_x_xsrf_token: fs_x_xsrf_token?.config_value
+            })
+        })
+        const res = await response.json()
+
         return res
     }
 
@@ -309,7 +350,7 @@
                     <div v-if="!isLoading" class="grid grid-cols-1 md:grid-cols-2 gap-y-2 pb-4 border-b-2 border-neutral-800">
                         <QuotationMaterialCosts ref="materialCostsRef" :items="material_items" @open-material-list="materialsModalRef.onModalOpen()" />
                         <QuotationMiscellaneousCosts ref="miscellaneousCostsRef" :items="[]" />
-                        <QuotationLaborCosts ref="laborCostsRef" :items="[]" />
+                        <QuotationLaborCosts ref="laborCostsRef" :items="labor_cost" />
                         <QuotationSubscontractCosts ref="subscontractCostsRef" :items="[]" />
                     </div>
 

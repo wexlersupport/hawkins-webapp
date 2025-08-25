@@ -2,7 +2,7 @@
     const props = defineProps<{
         scopeDetails: any[]
     }>()
-    console.log('props', props)
+    // console.log('props', props)
 
     const activeScope = ref(['0'])
 </script>
