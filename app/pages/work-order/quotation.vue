@@ -30,6 +30,11 @@
 
     onMounted(async () => {
         isLoading.value = true
+        const { response: isLogin } = await isLoginFieldService()
+        if (!isLogin) {
+            toast.add({ title: 'Unauthorized to Field Service!', description: `Please login in Field Service to access the data.`, color: 'error' })
+        }
+
         const { response } = await fetchWorkOrderId()
         workOrderDetail.value = response
         material_list.value = await fetchMaterials()
@@ -47,11 +52,12 @@
                 color: 'error'
             })
         } else {
+            const cost = fs_workorder.EstimatedDuration + (fs_workorder.ScopeData ? fs_workorder.ScopeData[0]?.SummaryLaborHours : 0)
             labor_cost.value = [
                 {
                     item: 'labor_cost',
                     name: 'labor_hours',
-                    cost: fs_workorder.ScopeData ? fs_workorder.ScopeData[0]?.SummaryLaborHours : 0 
+                    cost
                 }
             ]
         }
@@ -116,15 +122,27 @@
         return res
     }
 
-    async function fetchFieldService() {
-        const fs_x_xsrf_token = config_all.value?.find((item: any) => item.config_key === 'fs_x_xsrf_token')
+    async function isLoginFieldService() {
         const fs_cookie = config_all.value?.find((item: any) => item.config_key === 'fs_cookie')
 
-        const response = await fetch('/api/vista/field_service', {
+        const response = await fetch('/api/vista/field_service/is_login', {
             method: 'POST',
             body: JSON.stringify({
-                fs_cookie: fs_cookie?.config_value,
-                fs_x_xsrf_token: fs_x_xsrf_token?.config_value
+                fs_cookie: fs_cookie?.config_value
+            })
+        })
+        const res = await response.json()
+
+        return res
+    }
+
+    async function fetchFieldService() {
+        const fs_cookie = config_all.value?.find((item: any) => item.config_key === 'fs_cookie')
+
+        const response = await fetch('/api/vista/field_service/work_order_trips', {
+            method: 'POST',
+            body: JSON.stringify({
+                fs_cookie: fs_cookie?.config_value
             })
         })
         const res = await response.json()

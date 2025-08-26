@@ -29,7 +29,7 @@
     const pdf_name = ref<string>('')
     onMounted(async () => {
         if (props?.data) {
-            const name = props?.data?.work_order_details?.ContactName ?? props?.data?.customer_details?.Name
+            const name = props?.data?.field_service?.CustomerName ?? ''
             pdf_name.value = `${name}_${props?.data?.work_order_id}_${props?.data?.quotation_id}`
 
             emailObj.filename = `${pdf_name.value}.pdf`

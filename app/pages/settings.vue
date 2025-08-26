@@ -6,6 +6,12 @@ const links = [[{
   icon: 'i-lucide-user',
   to: '/settings/general',
   exact: true
+},
+{
+  label: 'Field Service',
+  icon: 'i-lucide-book-open',
+  to: '/settings/field_service',
+  exact: true
 // }, {
 //   label: 'Members',
 //   icon: 'i-lucide-users',

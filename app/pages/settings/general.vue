@@ -30,19 +30,20 @@
             label: 'AI generate Scope of Works',
             description: 'System will generate scope of works. Default is enabled.',
             type: 'switch'
-        },
-        {
-            name: 'fs_x_xsrf_token',
-            label: 'XSRF Token',
-            description: 'System will saved XSRF token.',
-            type: 'textarea',
-        },
-        {
-            name: 'fs_cookie',
-            label: 'Cookie',
-            description: 'System will saved Cookie.',
-            type: 'textarea',
-        }]
+          },
+          // {
+          //     name: 'fs_x_xsrf_token',
+          //     label: 'XSRF Token',
+          //     description: 'System will saved XSRF token.',
+          //     type: 'textarea',
+          // },
+          // {
+          //     name: 'fs_cookie',
+          //     label: 'Cookie',
+          //     description: 'System will saved Cookie.',
+          //     type: 'textarea',
+          // }
+        ]
     }]
 
     async function onChange() {
@@ -62,34 +63,34 @@
       }));
       // console.log('updateItem ', updateItem)
 
-      const fs_x_xsrf_token = config_all?.find((item: any) => item.config_key === 'fs_x_xsrf_token')
-      const update_fs_x_xsrf_token = await handleApiResponse($fetch('/api/postgre/'+fs_x_xsrf_token.id, {
-          query: {
-              table: 'configuration',
-              dynamic_field: 'id',
-              dynamic_value: fs_x_xsrf_token.id
-          },
-          method: 'PUT',
-          body: {
-            updated_at: formatJsDateToDatetime(new Date()),
-            config_value: state.fs_x_xsrf_token?.toString()
-          }
-      }));
-      // console.log('update_fs_x_xsrf_token ', update_fs_x_xsrf_token)
+      // const fs_x_xsrf_token = config_all?.find((item: any) => item.config_key === 'fs_x_xsrf_token')
+      // const update_fs_x_xsrf_token = await handleApiResponse($fetch('/api/postgre/'+fs_x_xsrf_token.id, {
+      //     query: {
+      //         table: 'configuration',
+      //         dynamic_field: 'id',
+      //         dynamic_value: fs_x_xsrf_token.id
+      //     },
+      //     method: 'PUT',
+      //     body: {
+      //       updated_at: formatJsDateToDatetime(new Date()),
+      //       config_value: state.fs_x_xsrf_token?.toString()
+      //     }
+      // }));
+      // // console.log('update_fs_x_xsrf_token ', update_fs_x_xsrf_token)
 
-      const fs_cookie = config_all?.find((item: any) => item.config_key === 'fs_cookie')
-      const update_fs_cookie = await handleApiResponse($fetch('/api/postgre/'+fs_cookie.id, {
-          query: {
-              table: 'configuration',
-              dynamic_field: 'id',
-              dynamic_value: fs_cookie.id
-          },
-          method: 'PUT',
-          body: {
-            updated_at: formatJsDateToDatetime(new Date()),
-            config_value: state.fs_cookie?.toString()
-          }
-      }));
+      // const fs_cookie = config_all?.find((item: any) => item.config_key === 'fs_cookie')
+      // const update_fs_cookie = await handleApiResponse($fetch('/api/postgre/'+fs_cookie.id, {
+      //     query: {
+      //         table: 'configuration',
+      //         dynamic_field: 'id',
+      //         dynamic_value: fs_cookie.id
+      //     },
+      //     method: 'PUT',
+      //     body: {
+      //       updated_at: formatJsDateToDatetime(new Date()),
+      //       config_value: state.fs_cookie?.toString()
+      //     }
+      // }));
       // console.log('update_fs_x_xsrf_token ', update_fs_x_xsrf_token)
 
       // toast.add({

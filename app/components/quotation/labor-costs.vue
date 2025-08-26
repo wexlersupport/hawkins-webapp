@@ -45,7 +45,10 @@
                         <div></div>
                         <div>Labor</div>
                         <div>Overtime</div>
-                        <div>Hours</div>
+                        <div>
+                            Hours
+                            <div class="text-xs text-neutral-600 pt-1">(Labor Hrs + Trip Est. Hrs)</div>
+                        </div>
                         <div>
                             <UInput
                                 v-model="laborCosts.laborHours"
