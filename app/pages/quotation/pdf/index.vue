@@ -34,12 +34,15 @@
         customerDetail.value = customer
 
         const { response: fs_data } = await fetchFieldService()
-        fsDetail.value = fs_data?.find((item: any) => item.WorkOrder === Number(work_order_id))
-        // console.log('Field Service Work Order: ', fsDetail.value)
-        if (!fsDetail.value) {
-            toast.add({ title: 'No Field Service Data!', description: `No Field Service data found for Work Order ID ${work_order_id}.`, color: 'error' })
-        } else {
-            isFsDetail.value = true
+        // console.log('Field Service Data: ', fs_data[0]?.WorkOrder)
+        if (fs_data && fs_data[0]?.WorkOrder) {
+            fsDetail.value = fs_data?.find((item: any) => item.WorkOrder === Number(work_order_id))
+            // console.log('Field Service Work Order: ', fsDetail.value)
+            if (!fsDetail.value) {
+                toast.add({ title: 'No Field Service Data!', description: `No Field Service data found for Work Order ID ${work_order_id}.`, color: 'error' })
+            } else {
+                isFsDetail.value = true
+            }
         }
 
         isLoading.value = false

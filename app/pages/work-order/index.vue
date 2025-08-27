@@ -19,7 +19,7 @@ const workOrderData = ref<any>()
 onMounted(async () => {
   const { response } = await fetchWorkOrder()
   // console.log(response)
-  workOrderData.value = response?.data
+  workOrderData.value = response?.data?.sort((a: any, b: any) => new Date(b?.__modifiedUTC).getTime() - new Date(a?.__modifiedUTC).getTime());
   isLoading.value = false
   // console.log(workOrderData.value)
   // console.log('table ', table.value?.tableApi?.getColumn('WorkOrder'))

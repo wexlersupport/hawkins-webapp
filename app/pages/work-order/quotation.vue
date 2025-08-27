@@ -43,23 +43,26 @@
         console.log('Work Completed: ', work_completed.value)
 
         const { response: fs_data } = await fetchFieldService()
-        const fs_workorder = fs_data?.find((item: any) => item.WorkOrder === Number(work_order_id))
-        // console.log('Field Service Work Order: ', fs_workorder)
-        if (!fs_workorder) {
-            toast.add({
-                title: 'No Field Service Data!',
-                description: `No Field Service data found for Work Order ID ${work_order_id}.`,
-                color: 'error'
-            })
-        } else {
-            const cost = fs_workorder.EstimatedDuration + (fs_workorder.ScopeData ? fs_workorder.ScopeData[0]?.SummaryLaborHours : 0)
-            labor_cost.value = [
-                {
-                    item: 'labor_cost',
-                    name: 'labor_hours',
-                    cost
-                }
-            ]
+        // console.log('Field Service Data: ', fs_data[0]?.WorkOrder)
+        if (fs_data && fs_data[0]?.WorkOrder) {
+            const fs_workorder = fs_data?.find((item: any) => item.WorkOrder === Number(work_order_id))
+            // console.log('Field Service Work Order: ', fs_workorder)
+            if (!fs_workorder) {
+                toast.add({
+                    title: 'No Field Service Data!',
+                    description: `No Field Service data found for Work Order ID ${work_order_id}.`,
+                    color: 'error'
+                })
+            } else {
+                const cost = fs_workorder.EstimatedDuration + (fs_workorder.ScopeData ? fs_workorder.ScopeData[0]?.SummaryLaborHours : 0)
+                labor_cost.value = [
+                    {
+                        item: 'labor_cost',
+                        name: 'labor_hours',
+                        cost
+                    }
+                ]
+            }
         }
 
         isLoading.value = false

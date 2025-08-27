@@ -155,7 +155,15 @@
                     console.log('Viewing Quotation details:', row)
                     navigateTo('/quotation/' + row.original.quotation_id)
                 }
-            }
+            },
+            {
+                label: 'View Generate PDF',
+                icon: 'i-lucide-file',
+                onSelect() {
+                    console.log('Viewing Generate PDF:', row)
+                    navigateTo('/quotation/pdf?quotation_id=' + row.original.quotation_id + '&work_order_id=' + row.original.work_order_id)
+                }
+            },
         ]
     }
 
