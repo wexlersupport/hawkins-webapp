@@ -462,7 +462,10 @@
                                         (costs.laborCosts.overtimeHours * costs.gross_profit.labor_ot) +
                                         (costs.miscellaneousCosts / (1 - (costs.gross_profit.miscellaneous / 100))) +
                                         (costs.subscontractCosts / (1 - (costs.gross_profit.subcontract / 100)))) +
-                                        extraDeductMoney).toFixed(2) || 0
+                                        extraDeductMoney).toLocaleString('en-US', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        }) || 0
                                     }}
                                 </strong>
                                 <div class="text-xs text-neutral-600">(total bidding price + extra deduct money)</div>

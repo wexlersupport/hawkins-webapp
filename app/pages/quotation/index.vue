@@ -249,7 +249,7 @@
             return h(
                 'div',
                 { class: 'text-error' },
-                row.original.final_price
+                row.original.final_price?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
             )
         }
     },

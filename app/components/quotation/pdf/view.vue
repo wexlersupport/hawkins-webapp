@@ -112,7 +112,7 @@ const generatePdf = () => {
             },
           },
           table: {
-            widths: ["30%", "*"],
+            widths: ["25%", "*"],
             body: [
               // Header Row
               [
@@ -125,17 +125,21 @@ const generatePdf = () => {
                 { text: `: ${company_name.value}`, style: "tableKey" },
               ],
               [
-                { text: "Attention", style: "tableValue" },
-                { text: `: ${contact_name.value} ${contact_phone.value}`, style: "tableKey" },
+                { text: "Address", style: "tableValue" },
+                { text: `: ${address_name.value}`, style: "tableKey" },
+              ],
+              [
+                { text: "Work Order Number", style: "tableValue" },
+                { text: `: ${props?.data?.work_order_details?.WorkOrder}`, style: "tableKey" },
               ],
               [
                 { text: "Project Name", style: "tableValue" },
                 { text: `: ${company_name.value} WO#${props?.data?.work_order_details?.WorkOrder}`, style: "tableKey" },
               ],
-              [
-                { text: "Address", style: "tableValue" },
-                { text: `: ${address_name.value}`, style: "tableKey" },
-              ]
+              // [
+              //   { text: "Attention", style: "tableValue" },
+              //   { text: `: ${contact_name.value} ${contact_phone.value}`, style: "tableKey" },
+              // ],
             ],
           },
           margin: [0, 0, 0, 5],
@@ -352,7 +356,7 @@ const generatePdf = () => {
     },
     {
       text: [ `Total for the above scope of work:  `,
-        { text: `$${final_price.value.toFixed(2)}`, bold: true, fontSize: 14, color: "red" }
+        { text: `$${final_price.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, bold: true, fontSize: 14 }
       ],
       margin: [0, 10, 0, 0],
       style: {
