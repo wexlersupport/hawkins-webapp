@@ -57,11 +57,11 @@
 
 <script setup>
   import { ref } from 'vue';
-  import * as pdfjsLib from 'pdfjs-dist/build/pdf.mjs';
-  import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
+  import * as pdfjsLib from "pdfjs-dist";
+  import pdfWorker from "pdfjs-dist/build/pdf.worker.mjs?url";
   import Tesseract from 'tesseract.js';
 
-  pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
   // State
   const extractedText = ref([]);
