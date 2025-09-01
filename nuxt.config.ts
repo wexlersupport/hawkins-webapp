@@ -7,11 +7,12 @@ export default defineNuxtConfig({
     '@formkit/nuxt',
     'nuxt-pdfmake',
   ],
-  vite: {
-    resolve: {
-      alias: {
-        "pdfjs-dist/build/pdf.worker.mjs": "pdfjs-dist/build/pdf.worker.mjs",
-      },
+  build: {
+    rollupOptions: {
+      external: [
+        "pdfjs-dist/build/pdf.mjs",
+        "pdfjs-dist/build/pdf.worker.mjs"
+      ],
     },
   },
   pdfmake: {
