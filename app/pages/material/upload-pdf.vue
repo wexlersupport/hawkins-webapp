@@ -56,7 +56,6 @@
 </template>
 
 <script setup>
-/*
   import { ref } from 'vue';
   import * as pdfjsLib from 'pdfjs-dist/build/pdf.mjs';
   import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
@@ -162,5 +161,4 @@
       processingMessage.value = 'Failed to fetch PDF. Please check the URL.';
     }
   }
-    */
 </script>

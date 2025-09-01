@@ -7,7 +7,13 @@ export default defineNuxtConfig({
     '@formkit/nuxt',
     'nuxt-pdfmake',
   ],
-
+  vite: {
+    resolve: {
+      alias: {
+        "pdfjs-dist/build/pdf.worker.mjs": "pdfjs-dist/build/pdf.worker.mjs",
+      },
+    },
+  },
   pdfmake: {
     enabled: true, // Enable the module
     enableComposable: true, // Enable usePDFMake and useFontPresets composables
