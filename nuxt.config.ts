@@ -7,14 +7,6 @@ export default defineNuxtConfig({
     '@formkit/nuxt',
     'nuxt-pdfmake',
   ],
-  build: {
-    rollupOptions: {
-      external: [
-        "pdfjs-dist/build/pdf.mjs",
-        "pdfjs-dist/build/pdf.worker.mjs"
-      ],
-    },
-  },
   pdfmake: {
     enabled: true, // Enable the module
     enableComposable: true, // Enable usePDFMake and useFontPresets composables
