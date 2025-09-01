@@ -1,4 +1,6 @@
 <script setup lang="ts">
+    import { fetchFieldServiceAttachmentsList, processUrl } from '@/utils/process_pdf_url'
+
     const toast = useToast()
     const route = useRoute()
 
@@ -17,6 +19,8 @@
         query: { table: 'configuration' }
     });
     const config_all = ref<any>(configData.value?.data)
+    const scope_work = ref<any>(null)
+    const canvasRef = ref(null)
 
     onMounted(async () => {
         isLoading.value = true
@@ -42,6 +46,24 @@
                 toast.add({ title: 'No Field Service Data!', description: `No Field Service data found for Work Order ID ${work_order_id}.`, color: 'error' })
             } else {
                 isFsDetail.value = true
+                const { response: fs_attachments_list } = await fetchFieldServiceAttachmentsList(fsDetail.value, config_all.value)
+                console.log('Field Service fs_attachments_list: ', fs_attachments_list)
+                if (fs_attachments_list && fs_attachments_list.length > 0) {
+                    const fs_attachment = fs_attachments_list?.find((item: any) => {
+                        return item?.AttachmentFileName.includes('Service Quote') || item?.AttachmentFileName.includes('Service_Quote') || item?.Description.includes('Service Quote') || item?.Description.includes('Service_Quote')
+                    })
+                    console.log('Field Service fs_attachment: ', fs_attachment)
+                    if (fs_attachment) {
+                        const pdf_text = await processUrl(`http://localhost:3000/uploaded-files/${fs_attachment.AttachmentID}.pdf`, canvasRef.value)
+                        console.log('Field Service pdf_text: ', pdf_text)
+                        const scope_of_info_index = pdf_text?.findIndex((item: string) => item.includes('Scope Information') || item.includes('Scope of quote')) || 0
+                        console.log('Field Service scope_of_info_index: ', scope_of_info_index)
+                        const material_index = pdf_text?.findIndex((item: string) => item.includes('Material')) || 0
+                        console.log('Field Service material_index: ', material_index)
+                        scope_work.value = pdf_text?.slice(scope_of_info_index + 1, material_index).join('') || ''
+                        console.log('Field Service scope_work: ', scope_work.value)
+                    }
+                }
             }
         }
 
@@ -57,6 +79,7 @@
             customer_details: customerDetail.value,
             pdf_base64: pdfBase64.value,
             field_service: fsDetail.value,
+            scope_work: scope_work.value,
         }
     })
 
@@ -156,6 +179,7 @@
             </UDashboardNavbar>
         </template>
         <template #body>
+            <canvas ref="canvasRef" class="hidden"></canvas>
             <UiAppLoading
                 v-if="isLoading"
                 class="border rounded-md p-6 my-4 border-neutral-800"

@@ -27,6 +27,8 @@
     "date-fns": "^4.1.0",
     "fuse.js": "^7.1.0",
     "nuxt": "^3.17.5",
+    "pdfjs-dist": "^5.4.54",
+    "tesseract.js": "^6.0.1",
     "valibot": "^1.1.0",
     "xlsx": "^0.18.5",
     "zod": "^3.25.57"
@@ -35,6 +37,7 @@
     "@iconify-json/material-symbols": "^1.2.30",
     "@nuxt/eslint": "^1.4.1",
     "@types/fuse": "^2.6.2",
+    "@types/pdfjs-dist": "^2.10.377",
     "eslint": "^9.28.0",
     "nuxt-pdfmake": "^0.0.46",
     "typescript": "^5.8.3",

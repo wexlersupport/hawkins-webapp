@@ -1,4 +1,6 @@
 <script setup lang="ts">
+    import { fetchFieldServiceAttachmentsList, processUrl, savePDF } from '@/utils/process_pdf_url'
+
     const toast = useToast()
     const route = useRoute()
 
@@ -21,6 +23,7 @@
     const quotation_id = ref<any>(null)
     const material_list = ref<any>(null)
     const work_completed = ref<any>(null)
+    const canvasRef = ref(null)
     const query = { table: 'quotation_details' }
 
     const { data } = await useFetch('/api/postgre', {
@@ -48,20 +51,85 @@
             const fs_workorder = fs_data?.find((item: any) => item.WorkOrder === Number(work_order_id))
             // console.log('Field Service Work Order: ', fs_workorder)
             if (!fs_workorder) {
-                toast.add({
-                    title: 'No Field Service Data!',
-                    description: `No Field Service data found for Work Order ID ${work_order_id}.`,
-                    color: 'error'
-                })
+                toastMessage('No Field Service Data!', `No Field Service data found for Work Order ID ${work_order_id}.`, 'error')
             } else {
-                const cost = fs_workorder.EstimatedDuration + (fs_workorder.ScopeData ? fs_workorder.ScopeData[0]?.SummaryLaborHours : 0)
-                labor_cost.value = [
-                    {
-                        item: 'labor_cost',
-                        name: 'labor_hours',
-                        cost
+                const { response: fs_attachments_list } = await fetchFieldServiceAttachmentsList(fs_workorder, config_all.value)
+                console.log('Field Service fs_attachments_list: ', fs_attachments_list)
+                if (fs_attachments_list && fs_attachments_list.length > 0) {
+                    const fs_attachment = fs_attachments_list?.find((item: any) => {
+                        return item?.AttachmentFileName.includes('Service Quote') || item?.AttachmentFileName.includes('Service_Quote') || item?.Description.includes('Service Quote') || item?.Description.includes('Service_Quote')
+                    })
+                    console.log('Field Service fs_attachment: ', fs_attachment)
+                    if (fs_attachment) {
+                        const response = await savePDF(fs_attachment, config_all.value)
+                        console.log('Field Service pdf_path: ', response)
+                        const pdf_text = await processUrl(`http://localhost:3000${response.url}`, canvasRef.value)
+                        console.log('Field Service pdf_text: ', pdf_text)
+
+                        const number_tech_index = pdf_text?.findIndex((item: string) => item.includes('Number of Tech') && !item.includes('Estimate')) || 0
+                        console.log('Field Service number_tech_index: ', number_tech_index)
+
+                        const number_helper_index = pdf_text?.findIndex((item: string) => item.includes('Number of Helper') || item.includes('helper')) || 0
+                        console.log('Field Service number_helper_index: ', number_helper_index)
+
+                        const hours_to_complete_index = pdf_text?.findIndex((item: string) => item.includes('Hours To Complete') || item.includes('Hour To Complete')) || 0
+                        console.log('Field Service hours_to_complete_index: ', hours_to_complete_index)
+
+                        const page_number_index = pdf_text?.findIndex((item: string) => item.includes('1 of') || item.includes('Service Quote')) || 0
+                        console.log('Field Service page_number_index: ', page_number_index)
+
+                        const number_tech = pdf_text?.slice(number_tech_index + 1, number_helper_index - 1).join('') || ''
+                        console.log('Field Service number_tech: ', number_tech)
+                        let number_tech_lastdigit: any = number_tech.match(/\d+(?=\D*$)/) || [1];
+                        number_tech_lastdigit = Number(number_tech_lastdigit[0])
+                        console.log('Field Service lastDigit: ', number_tech_lastdigit)
+                        
+                        const number_helper = pdf_text?.slice(number_helper_index + 1, hours_to_complete_index - 1).join('') || ''
+                        console.log('Field Service number_helper: ', number_helper)
+                        let number_helper_lastdigit: any = number_helper.match(/\d+(?=\D*$)/) || [1];
+                        number_helper_lastdigit = Number(number_helper_lastdigit[0])
+                        console.log('Field Service number_helper_lastdigit: ', number_helper_lastdigit)
+
+                        const hours_to_complete = pdf_text?.slice(hours_to_complete_index + 1, page_number_index - 1).join('') || ''
+                        console.log('Field Service hours_to_complete: ', hours_to_complete)
+                        let hours_to_complete_lastdigit: any = hours_to_complete.match(/\d+(?=\D*$)/) || [1];
+                        hours_to_complete_lastdigit = Number(hours_to_complete_lastdigit[0])
+                        console.log('Field Service hours_to_complete_lastdigit: ', hours_to_complete_lastdigit)
+                        if (hours_to_complete.includes('DAY') || hours_to_complete.includes('Day') || hours_to_complete.includes('day')) {
+                            hours_to_complete_lastdigit = hours_to_complete_lastdigit * 8
+                        }
+                        console.log('Field Service hours_to_complete_lastdigit: ', hours_to_complete_lastdigit)
+
+                        const cost = hours_to_complete_lastdigit * (number_tech_lastdigit + number_helper_lastdigit)
+                        labor_cost.value = [
+                            {
+                                item: 'labor_cost',
+                                name: 'labor_hours',
+                                cost
+                            }
+                        ]
+                    } else {
+                        const cost = fs_workorder.EstimatedDuration + (fs_workorder.ScopeData ? fs_workorder.ScopeData[0]?.SummaryLaborHours : 0)
+                        labor_cost.value = [
+                            {
+                                item: 'labor_cost',
+                                name: 'labor_hours',
+                                cost
+                            }
+                        ]
+                        toastMessage('No Attachment!', `No Field Service attachments found for Work Order ID ${work_order_id}.`, 'error')
                     }
-                ]
+                } else {
+                    const cost = fs_workorder.EstimatedDuration + (fs_workorder.ScopeData ? fs_workorder.ScopeData[0]?.SummaryLaborHours : 0)
+                    labor_cost.value = [
+                        {
+                            item: 'labor_cost',
+                            name: 'labor_hours',
+                            cost
+                        }
+                    ]
+                    toastMessage('No Attachment!', `No Field Service attachments found for Work Order ID ${work_order_id}.`, 'error')
+                }
             }
         }
 
@@ -76,6 +144,10 @@
             }
         }, 1000)
     })
+
+    function toastMessage(title: any, description: any, color: any) {
+        toast.add({ title, description, color })
+    }
 
     async function onAutoGenerateMaterials() {
         // Type = 4 is for materials
@@ -364,6 +436,7 @@
                 </template>
 
                 <template #default>
+                    <canvas ref="canvasRef" class="hidden"></canvas>
                     <UiAppLoading
                         v-if="isLoading"
                         class="border rounded-md p-6 my-4 border-neutral-800"

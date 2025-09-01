@@ -48,7 +48,7 @@ onMounted(async () => {
     scope_work.value = props?.data?.work_order_details?.ScopeDetails[0].Description ?? '';
     if (props?.data?.work_order_details?.ScopeDetails.length > 0) {
       const details = props?.data?.work_order_details?.ScopeDetails.filter((item: any) => !item.Description.includes('New Scope')) ?? [];
-      scope_work.value = details.map((item: any) => item.Description) ?? [];
+      scope_work.value = props?.data?.scope_work ? [props?.data?.scope_work] : details.map((item: any) => item.Description);
       const {response: generated_scope} = await generateScopeOfWork(scope_work.value[0]);
       const config_scope_of_works = config_all.value?.find((item: any) => item.config_key === 'scope_of_works')
       if (generated_scope?.choices?.length > 0 && config_scope_of_works.config_value === 'true') {
