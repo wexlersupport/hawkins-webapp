@@ -1,5 +1,5 @@
 import sgMail from '@sendgrid/mail'
-import nodemailer from "nodemailer";
+import nodemailer from 'nodemailer'
 import fs from 'fs';
 import { convertHtmlEmail } from '~/utils'
 
