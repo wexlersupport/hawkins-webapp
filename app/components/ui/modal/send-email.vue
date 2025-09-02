@@ -62,7 +62,7 @@
         const send_quotation_res = await response_send_quotation.json()
         // console.log('send_quotation_res ', send_quotation_res)
 
-        if (send_quotation_res?.data?.id || (send_quotation_res.length > 0 && send_quotation_res[0].statusCode)) {
+        if (send_quotation_res?.accepted?.length > 0 || send_quotation_res?.data?.id || (send_quotation_res.length > 0 && send_quotation_res[0].statusCode)) {
             delete emailObj.content
             const created_at = formatJsDateToDatetime(new Date())
             const createItem = await handleApiResponse($fetch('/api/postgre', {

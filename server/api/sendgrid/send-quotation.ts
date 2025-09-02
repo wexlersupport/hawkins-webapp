@@ -1,4 +1,5 @@
 import sgMail from '@sendgrid/mail'
+import nodemailer from "nodemailer";
 import fs from 'fs';
 import { convertHtmlEmail } from '~/utils'
 
@@ -41,22 +42,33 @@ export default defineEventHandler(async (event) => {
                 content,
                 filename,
                 type: "text/html",
+                encoding: "base64",
                 disposition: "attachment"
             }
         ]
         sendContent.attachments = attachments
 
-        const data = sgMail
-            // .send({...sendContent, template_id: 'd-9ea9297503204eab95b081340ee70691'})
-            .send(sendContent)
-            .then((res: any) => {
-                console.log('Email sent')
-                return res
-            })
-            .catch((error: any) => {
-                console.error(error)
-                return error
-            })
+        // const data = sgMail
+        //     // .send({...sendContent, template_id: 'd-9ea9297503204eab95b081340ee70691'})
+        //     .send(sendContent)
+        //     .then((res: any) => {
+        //         console.log('Email sent')
+        //         return res
+        //     })
+        //     .catch((error: any) => {
+        //         console.error(error)
+        //         return error
+        //     })
+
+        const transporter = nodemailer.createTransport({
+            service: "gmail", // you can also use "Outlook365", "Yahoo", or custom SMTP
+            auth: {
+                user: from, // your email
+                pass: 'mizh igci lyma mtpx', // app password (not your real password!)
+            },
+        });
+
+        const data = await transporter.sendMail(sendContent);
 
         return data;
     } catch (error) {
