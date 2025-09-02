@@ -4,18 +4,17 @@ import Tesseract from 'tesseract.js';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
-export async function processUrl(url: string, canvasRef: any) {
+export async function processUrl(fs_attachment: any, canvasRef: any, config_all: any) {
     try {
-        const response = await fetch('/api/fetch-pdf', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url })
-        });
+        const response = await fetchPdf(fs_attachment, config_all)
+        const blob = await response?.blob();
+        // console.log('PDF blob :', blob);
+        const arrayBuffer = await blob?.arrayBuffer();
+        // console.log('PDF arrayBuffer :', arrayBuffer);
+        const extractedText: any = await handlePdfData(arrayBuffer, canvasRef);
+        // console.log('PDF extractedText :', extractedText);
 
-        const arrayBuffer = await response.arrayBuffer();
-        const pdf_text: any = await handlePdfData(arrayBuffer, canvasRef);
-
-        return pdf_text.split('\n');
+        return extractedText.split('\n');
     } catch (err) {
         console.error('Error fetching PDF:', err);
     }
@@ -73,6 +72,21 @@ export async function handlePdfData(pdfData: any, canvasRef: any) {
     }
 }
 
+export async function savePDF(fs_attachment: any, config_all: any) {
+    const fs_cookie = config_all?.find((item: any) => item.config_key === 'fs_cookie')
+
+    const response = await fetch('/api/vista/field_service/save-pdf', {
+        method: 'POST',
+        body: JSON.stringify({
+            fs_cookie: fs_cookie?.config_value,
+            attachmentID: fs_attachment?.AttachmentID
+        })
+    })
+    const res = await response.json()
+
+    return res
+}
+
 export async function fetchFieldServiceAttachmentsList(fs_workorder: any, config_all: any) {
     const fs_cookie = config_all?.find((item: any) => item.config_key === 'fs_cookie')
 
@@ -88,17 +102,16 @@ export async function fetchFieldServiceAttachmentsList(fs_workorder: any, config
     return res
 }
 
-export async function savePDF(fs_attachment: any, config_all: any) {
+export async function fetchPdf(fs_attachment: any, config_all: any) {
     const fs_cookie = config_all?.find((item: any) => item.config_key === 'fs_cookie')
 
-    const response = await fetch('/api/vista/field_service/save-pdf', {
+    const response = await fetch('/api/vista/field_service/attachment_id', {
         method: 'POST',
         body: JSON.stringify({
             fs_cookie: fs_cookie?.config_value,
             attachmentID: fs_attachment?.AttachmentID
         })
     })
-    const res = await response.json()
 
-    return res
+    return response
 }

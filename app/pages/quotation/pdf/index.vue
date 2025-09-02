@@ -54,12 +54,12 @@
                     })
                     console.log('Field Service fs_attachment: ', fs_attachment)
                     if (fs_attachment) {
-                        const pdf_text = await processUrl(`http://localhost:3000/uploaded-files/${fs_attachment.AttachmentID}.pdf`, canvasRef.value)
+                        const pdf_text = await processUrl(fs_attachment, canvasRef.value, config_all.value)
                         console.log('Field Service pdf_text: ', pdf_text)
                         const scope_of_info_index = pdf_text?.findIndex((item: string) => item.includes('Scope Information') || item.includes('Scope of quote')) || 0
-                        console.log('Field Service scope_of_info_index: ', scope_of_info_index)
+                        // console.log('Field Service scope_of_info_index: ', scope_of_info_index)
                         const material_index = pdf_text?.findIndex((item: string) => item.includes('Material')) || 0
-                        console.log('Field Service material_index: ', material_index)
+                        // console.log('Field Service material_index: ', material_index)
                         scope_work.value = pdf_text?.slice(scope_of_info_index + 1, material_index).join('') || ''
                         console.log('Field Service scope_work: ', scope_work.value)
                     }

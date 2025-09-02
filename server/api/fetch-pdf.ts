@@ -1,4 +1,4 @@
-// server/api/fetch-pdf.js
+
 export default defineEventHandler(async (event) => {
   const { url } = await readBody(event);
 

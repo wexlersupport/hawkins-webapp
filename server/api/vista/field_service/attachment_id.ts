@@ -11,22 +11,21 @@ export default defineEventHandler(async (event) => {
 
     try {
         const url = 'https://hawkinselectricserviceinc-hff.viewpointforcloud.com/Document/GetVPAttachment?attachmentID=' + attachmentID
-        const data = await $fetch<ArrayBuffer>(
-            url,
-            {
-                method: "GET",
-                responseType: "arrayBuffer",
-                headers: {
-                    Accept: 'application/json',
-                    'X-Application-Key': vistaApiKey,
-                    Cookie: cookie || ''
-                }
-            }
-        );
+        const response = await fetch(url, {
+            method: "GET",
+            headers: { 
+                Accept: 'application/json',
+                'X-Application-Key': vistaApiKey,
+                Cookie: cookie || ''
+             },
+        });
 
-    return {
-        response: data
-    }   
+        const arrayBuffer = await response.arrayBuffer();
+        // 🔹 Send raw PDF back to client
+        event.node.res.setHeader("Content-Type", "application/pdf");
+        event.node.res.setHeader("Content-Disposition", "inline"); // or "attachment"
+
+        return Buffer.from(arrayBuffer);
     } catch (error: any) {
         return {
             error : error.response.data

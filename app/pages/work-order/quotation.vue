@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { fetchFieldServiceAttachmentsList, processUrl, savePDF } from '@/utils/process_pdf_url'
+    import { fetchFieldServiceAttachmentsList, processUrl } from '@/utils/process_pdf_url'
 
     const toast = useToast()
     const route = useRoute()
@@ -61,31 +61,29 @@
                     })
                     console.log('Field Service fs_attachment: ', fs_attachment)
                     if (fs_attachment) {
-                        const response = await savePDF(fs_attachment, config_all.value)
-                        console.log('Field Service pdf_path: ', response)
-                        const pdf_text = await processUrl(`http://localhost:3000${response.url}`, canvasRef.value)
+                        const pdf_text = await processUrl(fs_attachment, canvasRef.value, config_all.value)
                         console.log('Field Service pdf_text: ', pdf_text)
 
                         const number_tech_index = pdf_text?.findIndex((item: string) => item.includes('Number of Tech') && !item.includes('Estimate')) || 0
-                        console.log('Field Service number_tech_index: ', number_tech_index)
+                        // console.log('Field Service number_tech_index: ', number_tech_index)
 
                         const number_helper_index = pdf_text?.findIndex((item: string) => item.includes('Number of Helper') || item.includes('helper')) || 0
-                        console.log('Field Service number_helper_index: ', number_helper_index)
+                        // console.log('Field Service number_helper_index: ', number_helper_index)
 
                         const hours_to_complete_index = pdf_text?.findIndex((item: string) => item.includes('Hours To Complete') || item.includes('Hour To Complete')) || 0
-                        console.log('Field Service hours_to_complete_index: ', hours_to_complete_index)
+                        // console.log('Field Service hours_to_complete_index: ', hours_to_complete_index)
 
                         const page_number_index = pdf_text?.findIndex((item: string) => item.includes('1 of') || item.includes('Service Quote')) || 0
-                        console.log('Field Service page_number_index: ', page_number_index)
+                        // console.log('Field Service page_number_index: ', page_number_index)
 
                         const number_tech = pdf_text?.slice(number_tech_index + 1, number_helper_index - 1).join('') || ''
-                        console.log('Field Service number_tech: ', number_tech)
+                        // console.log('Field Service number_tech: ', number_tech)
                         let number_tech_lastdigit: any = number_tech.match(/\d+(?=\D*$)/) || [1];
                         number_tech_lastdigit = Number(number_tech_lastdigit[0])
-                        console.log('Field Service lastDigit: ', number_tech_lastdigit)
+                        console.log('Field Service number_tech_lastdigit: ', number_tech_lastdigit)
                         
                         const number_helper = pdf_text?.slice(number_helper_index + 1, hours_to_complete_index - 1).join('') || ''
-                        console.log('Field Service number_helper: ', number_helper)
+                        // console.log('Field Service number_helper: ', number_helper)
                         let number_helper_lastdigit: any = number_helper.match(/\d+(?=\D*$)/) || [1];
                         number_helper_lastdigit = Number(number_helper_lastdigit[0])
                         console.log('Field Service number_helper_lastdigit: ', number_helper_lastdigit)
@@ -94,7 +92,6 @@
                         console.log('Field Service hours_to_complete: ', hours_to_complete)
                         let hours_to_complete_lastdigit: any = hours_to_complete.match(/\d+(?=\D*$)/) || [1];
                         hours_to_complete_lastdigit = Number(hours_to_complete_lastdigit[0])
-                        console.log('Field Service hours_to_complete_lastdigit: ', hours_to_complete_lastdigit)
                         if (hours_to_complete.includes('DAY') || hours_to_complete.includes('Day') || hours_to_complete.includes('day')) {
                             hours_to_complete_lastdigit = hours_to_complete_lastdigit * 8
                         }
