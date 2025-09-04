@@ -32,6 +32,8 @@ export async function handlePdfData(pdfData: any, canvasRef: any) {
         let pagesTextArray = '';
         const canvas: any = canvasRef;
         const canvasContext = canvas.getContext('2d');
+        const allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+=-[]{};:'\",.<>/?`~|\\ ";
+        const regex = new RegExp(`[^${allowed.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}]`, "g");
 
         for (let i = 1; i <= pdf.numPages; i++) {
             // processingMessage.value = `Processing page ${i} of ${pdf.numPages}...`;
@@ -61,7 +63,7 @@ export async function handlePdfData(pdfData: any, canvasRef: any) {
                 });
                 pagesTextArray += text + '\n';
             } else {
-                pagesTextArray += textContent.items.map((item: any) => item.str).join('\n');
+                pagesTextArray += textContent.items.map((item: any) => item.str?.replace(regex, '')).join('\n');
             }
         }
 

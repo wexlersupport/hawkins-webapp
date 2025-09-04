@@ -20,6 +20,7 @@
     });
     const config_all = ref<any>(configData.value?.data)
     const scope_work = ref<any>(null)
+    const site_contact = ref<any>(null)
     const canvasRef = ref(null)
 
     onMounted(async () => {
@@ -60,8 +61,25 @@
                         // console.log('Field Service scope_of_info_index: ', scope_of_info_index)
                         const material_index = pdf_text?.findIndex((item: string) => item.includes('Material')) || 0
                         // console.log('Field Service material_index: ', material_index)
-                        scope_work.value = pdf_text?.slice(scope_of_info_index + 1, material_index).join('') || ''
-                        console.log('Field Service scope_work: ', scope_work.value)
+                        scope_work.value = pdf_text?.slice(scope_of_info_index + 1, material_index).filter((item: any) => item.trim() !== "") || ''
+                        scope_work.value = scope_work.value.join(' ') || ''
+                        if (scope_work.value?.includes('Scope of quoted work')) {
+                            scope_work.value = scope_work.value?.replace('Scope of quoted work', '').trim()
+                        }
+                        // console.log('Field Service scope_work: ', scope_work.value)
+
+                        const contact_name_index = pdf_text?.findIndex(
+                            (item: string) => item.includes('Contact Name') || item.includes('Phone Number') || item.includes('Contact')
+                        ) || 0
+                        // console.log('Field Service contact_name_index: ', contact_name_index)
+                        const email_address_index = pdf_text?.findIndex(
+                            (item: string) => item.includes('Email Address') || item.includes('Scope Information')
+                        ) || 0
+                        // console.log('Field Service email_address_index: ', email_address_index)
+                        if (contact_name_index >= 0 && email_address_index >= 0) {
+                            site_contact.value = pdf_text?.slice(contact_name_index + 1, email_address_index - 1)?.join('')?.trim() || ''
+                        }
+                        // console.log('Field Service site_contact: ', site_contact.value)
                     }
                 }
             }
@@ -80,6 +98,7 @@
             pdf_base64: pdfBase64.value,
             field_service: fsDetail.value,
             scope_work: scope_work.value,
+            site_contact: site_contact.value
         }
     })
 

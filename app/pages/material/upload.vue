@@ -20,6 +20,7 @@
         <option value="lightning">lightning</option>
         <option value="builders-products">builders-products</option>
         <option value="line-construction-material">line-construction-material</option>
+        <option value="hawkins">hawkins</option>
       </select>
       <input 
         type="file" 

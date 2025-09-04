@@ -39,7 +39,7 @@ onMounted(async () => {
   if (props?.data) {
     company_name.value = props?.data?.field_service?.CustomerName ?? ''
     pdf_name.value = `${company_name.value}_${props?.data?.work_order_id}_${props?.data?.quotation_id}`
-    contact_name.value = props?.data?.field_service?.ContactName ?? ''
+    contact_name.value = props?.data?.site_contact ?? props?.data?.field_service?.ContactName + ' ' + props?.data?.field_service?.ContactPhone
     contact_phone.value = props?.data?.field_service?.ContactPhone ?? ''
     address_name.value = `${props?.data?.field_service?.ServiceSiteDescription ?? ''} ${props?.data?.field_service?.Address1 ?? ''} ${props?.data?.field_service?.Address2 ?? ''} ${props?.data?.field_service?.City ?? ''}, ${props?.data?.field_service?.State ?? ''} ${props?.data?.field_service?.Zip ?? ''}`
 
@@ -129,12 +129,16 @@ const generatePdf = () => {
                 { text: `: ${address_name.value}`, style: "tableKey" },
               ],
               [
+                { text: "Site Contact", style: "tableValue" },
+                { text: `: ${contact_name.value}`, style: "tableKey" },
+              ],
+              [
                 { text: "Work Order Number", style: "tableValue" },
                 { text: `: ${props?.data?.work_order_details?.WorkOrder}`, style: "tableKey" },
               ],
               [
                 { text: "Project Name", style: "tableValue" },
-                { text: `: ${company_name.value} WO#${props?.data?.work_order_details?.WorkOrder}`, style: "tableKey" },
+                { text: `: ${company_name.value}`, style: "tableKey" },
               ],
               // [
               //   { text: "Attention", style: "tableValue" },

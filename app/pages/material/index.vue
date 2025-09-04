@@ -11,8 +11,12 @@
     const materialsAddModalRef = ref<any>(null)
     const materialData = ref<any>(null)
     const query = { table: 'materials' }
-    const { data } = await useFetch('/api/postgre', {
-        query: { ...query, isDesc: true }
+    const { data } = await useFetch('/api/postgre/dynamic_field', {
+        query: {
+            table: 'materials',
+            dynamic_field: 'category',
+            value: 'hawkins'
+        }
     });
 
     const search = ref('')
@@ -29,7 +33,10 @@
     })
 
     onMounted(async () => {
-        materialData.value = data.value?.data
+        materialData.value = data.value?.data?.map((item: any) => ({
+            ...item,
+            cost: item.cost ? `$${Number(item.cost)?.toFixed(2)}` : '0',
+        })) || []
         isLoading.value = false
     })
     
