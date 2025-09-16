@@ -41,6 +41,7 @@
         const { response } = await fetchWorkOrderId()
         workOrderDetail.value = response
         material_list.value = await fetchMaterials()
+        console.log('Material List: ', material_list.value)
         const { response: res } = await fetchWorkCompleted()
         work_completed.value = res?.data || []
         console.log('Work Completed: ', work_completed.value)
@@ -223,7 +224,7 @@
     }
 
     async function fetchMaterials() {
-        const { data } = await useFetch('/api/postgre', {
+        const { data } = await useFetch('/api/postgre/material_pricing', {
             query: { table: 'materials', isDesc: true },
         });
 

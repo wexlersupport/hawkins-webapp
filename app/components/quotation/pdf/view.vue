@@ -136,10 +136,10 @@ const generatePdf = () => {
                 { text: "Work Order Number", style: "tableValue" },
                 { text: `: ${props?.data?.work_order_details?.WorkOrder}`, style: "tableKey" },
               ],
-              [
-                { text: "Project Name", style: "tableValue" },
-                { text: `: ${company_name.value}`, style: "tableKey" },
-              ],
+              // [
+              //   { text: "Project Name", style: "tableValue" },
+              //   { text: `: ${company_name.value}`, style: "tableKey" },
+              // ],
               // [
               //   { text: "Attention", style: "tableValue" },
               //   { text: `: ${contact_name.value} ${contact_phone.value}`, style: "tableKey" },

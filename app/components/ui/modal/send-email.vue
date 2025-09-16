@@ -34,6 +34,7 @@
 
             emailObj.filename = `${pdf_name.value}.pdf`
             emailObj.subject = `${name} - WO#${props?.data?.work_order_id} - Quote#${props?.data?.quotation_id}`
+            emailObj.html = `<p>Hi,</p><p><br></p><p>You have a new generated quotation available. Please see attached file for more details.</p><p><br></p><p>If you wish to edit the generated pdf quote, click link below.</p><p><a href="https://hawkins-webapp.netlify.app/quotation/${props?.data?.quotation_id}" rel="noopener noreferrer" target="_blank">Hawkins Electric Web Application Link</a></p><p><br></p><p>Thank you.</p>`
         }
     })
 
