@@ -11,12 +11,8 @@
     const materialsAddModalRef = ref<any>(null)
     const materialData = ref<any>(null)
     const query = { table: 'materials' }
-    const { data } = await useFetch('/api/postgre/dynamic_field', {
-        query: {
-            table: 'materials',
-            dynamic_field: 'category',
-            value: 'hawkins'
-        }
+    const { data } = await useFetch('/api/postgre/material_pricing', {
+        query: { ...query, isDesc: true }
     });
 
     const search = ref('')
