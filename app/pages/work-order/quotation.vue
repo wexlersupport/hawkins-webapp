@@ -23,6 +23,7 @@
     const quotation_id = ref<any>(null)
     const material_list = ref<any>(null)
     const work_completed = ref<any>(null)
+    const pdfExtracted = ref<any>(null)
     const canvasRef = ref(null)
     const query = { table: 'quotation_details' }
 
@@ -63,6 +64,7 @@
                     console.log('Field Service fs_attachment: ', fs_attachment)
                     if (fs_attachment) {
                         const pdf_text = await processUrl(fs_attachment, canvasRef.value, config_all.value)
+                        pdfExtracted.value = pdf_text
                         console.log('Field Service pdf_text: ', pdf_text)
 
                         const number_tech_index = pdf_text?.findIndex((item: string) => item.includes('Number of Tech') && !item.includes('Estimate')) || 0
@@ -148,13 +150,32 @@
     }
 
     async function onAutoGenerateMaterials() {
-        // Type = 4 is for materials
-        const search_value: any[] = work_completed.value?.filter((item: any) => item.Type === 4).map((_item: any) => _item.Description) || [];
-        console.log('Search Value:', search_value);
-        if (!search_value || search_value.length === 0) {
-            console.log('No search terms provided.');
-            return;
+        let search_value: any[] = []
+        if (pdfExtracted.value || pdfExtracted.value?.length > 0) {
+            pdfExtracted.value = pdfExtracted.value.map((item: string) => item?.trim()).filter((item: string) => item !== '');
+            console.log('pdfExtracted.value:', pdfExtracted.value);
+            const indexMaterial = pdfExtracted.value.findIndex((str: string) => str.includes('Material'));
+            const indexEstimatedTime = pdfExtracted.value.findIndex((str: string) => str.includes('Estimated Time'));
+            console.log('indexMaterial:', indexMaterial, 'indexEstimatedTime:', indexEstimatedTime);
+            if (indexMaterial === -1 || indexEstimatedTime === -1 || indexEstimatedTime <= indexMaterial) {
+                console.log('Material or Estimated Time section not found or in wrong order.');
+                return;
+            }
+            const result = pdfExtracted.value.slice(indexMaterial + 1, indexEstimatedTime).join(' ');
+            console.log('Extracted Material Section:', result);
+            search_value = result.split(/,(?![^(]*\))/).map((s: string) => s.trim());
+            console.log('search_value:', search_value);
         }
+        if (!search_value || search_value.length === 0) {
+            // Type = 4 is for materials
+            search_value = work_completed.value?.filter((item: any) => item.Type === 4).map((_item: any) => _item.Description) || [];
+            console.log('Search Value:', search_value);
+            if (!search_value || search_value.length === 0) {
+                console.log('No search terms provided.');
+                return;
+            }
+        }   
+        console.log('Final Search Value:', search_value);
 
         const searchResultsAsObjects = combinedSingleObjectMatchSearch(search_value, material_list.value);
         console.log('Search Results:', searchResultsAsObjects);
