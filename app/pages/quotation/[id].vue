@@ -37,20 +37,20 @@
         const { response: res } = await fetchWorkCompleted()
         work_completed.value = res?.data || []
 
-        if (existing_costs.length < work_completed.value?.length) {
-            const costs_ids = existing_costs.map((cost: any) => Number(cost.id))
-            if (costs_ids.length > 0) {
-                const deleteItem = await onDeleteQuotationIds('id', costs_ids.join(','))
-                // console.log('costsdeleteItem_ids ', deleteItem)
-            }
+        // if (existing_costs.length < work_completed.value?.length) {
+        //     const costs_ids = existing_costs.map((cost: any) => Number(cost.id))
+        //     if (costs_ids.length > 0) {
+        //         const deleteItem = await onDeleteQuotationIds('id', costs_ids.join(','))
+        //         // console.log('costsdeleteItem_ids ', deleteItem)
+        //     }
 
-            await onAutoGenerateMaterials()
-            await onAutoGenerateMisc()
+        //     await onAutoGenerateMaterials()
+        //     await onAutoGenerateMisc()
 
-            setTimeout(() => {
-                onSaveMatMisc()
-            }, 1000);
-        }
+        //     setTimeout(() => {
+        //         onSaveMatMisc()
+        //     }, 1000);
+        // }
 
         quotationDetails.value = await fetchQuotationId()
 
