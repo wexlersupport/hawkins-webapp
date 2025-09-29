@@ -33,11 +33,20 @@
         open.value = true
         if (editData) {
             data.value = editData
+            const cost = parseFloat(data.value.cost?.replace(/[^0-9.]/g, ""));
             formObj = {
                 id: Number(data.value.id),
-                cost: Number(data.value.cost),
+                cost,
                 name: data.value.name,
                 description: data.value.description || '',
+            }
+        } else {
+            data.value = null
+            formObj = {
+                id: null,
+                name: '',
+                cost: 0,
+                description: '',
             }
         }
     }

@@ -221,7 +221,7 @@ const columns: TableColumn<any>[] = [
         color: "neutral",
         variant: "subtle",
         label: row.original.name,
-        onClick: () => navigateTo("/material/" + row.original.id),
+        onClick: () => materialsAddModalRef.value.onModalOpen(row.original),
         class: "text-center cursor-pointer",
       });
     },

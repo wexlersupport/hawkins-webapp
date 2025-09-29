@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   let whereClause = ''
   if (searchTerm) {
     params.push(`%${searchTerm}%`) // $1
-    whereClause = `WHERE name ILIKE $1::text OR description ILIKE $1::text`
+    whereClause = `WHERE name ILIKE $1::text OR description ILIKE $1::text OR sku ILIKE $1::text`
   }
 
   try {

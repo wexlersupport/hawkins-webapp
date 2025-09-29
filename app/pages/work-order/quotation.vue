@@ -176,9 +176,24 @@
             }
         }   
         console.log('Final Search Value:', search_value);
+        let searchResultsAsObjects: any[] = [];
+        for (const search_term of search_value) {
+            const result = await searchMaterials(search_term);
+            console.log(`Search result for "${search_term}":`, result);
+            if (result && result.length > 0) {
+                searchResultsAsObjects.push({ search_term, ...result[0] });
+            } else {
+                searchResultsAsObjects.push({
+                    search_term,
+                    name: search_term,
+                    cost: 0
+                });
+            }
+        }
+        console.log('searchResultsAsObjects1:', searchResultsAsObjects);
 
-        const searchResultsAsObjects = combinedSingleObjectMatchSearch(search_value, material_list.value);
-        console.log('Search Results:', searchResultsAsObjects);
+        // const searchResultsAsObjects = combinedSingleObjectMatchSearch(search_value, material_list.value);
+        // console.log('searchResultsAsObjects:', searchResultsAsObjects);
         if (searchResultsAsObjects) {
             searchResultsAsObjects.forEach((term: any) => {
                 if (term) {
@@ -242,6 +257,14 @@
         const res = await response.json()
 
         return res
+    }
+
+    async function searchMaterials(search_term: string) {
+        const { data } = await useFetch('/api/postgre/material_pricing_ilike', {
+            query: { table: 'materials', isDesc: true, search_term },
+        });
+
+        return data.value?.data || [];
     }
 
     async function fetchMaterials() {
