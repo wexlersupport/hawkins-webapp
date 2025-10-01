@@ -30,6 +30,7 @@ const query = { table: "materials" };
 // });
 
 const search = ref("");
+const search_advanced = ref("");
 const statusFilter = ref("all");
 const isLoading = ref<boolean>(true);
 const isSearching = ref<boolean>(false);
@@ -271,8 +272,8 @@ watch(
 
 watch(() => pagination.value.pageIndex, async (newIndex) => {
 //   isLoading.value = true;
-  console.log("watch:", newIndex, search.value, pagination.value);
-  const _search = isSearching.value ? search.value : '';
+  console.log("watch:", newIndex, search_advanced.value, pagination.value);
+  const _search = isSearching.value ? search_advanced.value : '';
   try {
     const res = await $fetch("/api/postgre/material_pricing_chunk", {
       query: {
@@ -317,12 +318,12 @@ async function onAdvancedSearch() {
   pagination.value.pageIndex = 0;
   isSearching.value = true;
   isLoading.value = true;
-  console.log("Advanced search triggered", search.value);
+  console.log("Advanced search triggered", search_advanced.value);
 
   const res = await $fetch("/api/postgre/material_pricing_chunk", {
       query: {
         ...query,
-        search: search.value,
+        search: search_advanced.value,
         isDesc: true,
         page: pagination.value.pageIndex + 1,
         limit: pagination.value.pageSize
@@ -347,7 +348,7 @@ async function onUpdatePagination(p: number) {
 
 async function clearSearch() {
   isSearching.value = false
-  search.value = ''
+  search_advanced.value = ''
   pagination.value.pageIndex = 0
 
   // 🔑 Force API reload
@@ -404,22 +405,23 @@ async function clearSearch() {
       <div class="flex flex-wrap items-center justify-between gap-1.5">
         <div class="flex gap-2">
           <UInput
-            v-model="search"
+            v-model="search_advanced"
             class="w-75"
             placeholder="Input search term"
+            @keyup.enter="onAdvancedSearch"
           />
           <UButton
             color="info"
             icon="i-lucide-search"
             class="max-w-sm cursor-pointer px-4"
-            label="Advanced Search"
+            label="Search"
             @click="onAdvancedSearch"
           />
           <UButton
             color="neutral"
             icon="i-lucide-x"
             class="max-w-sm cursor-pointer px-4"
-            label="Clear Search"
+            label="Clear"
             @click="clearSearch"
             v-if="isSearching"
           />

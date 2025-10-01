@@ -32,21 +32,21 @@ onMounted(async () => {
 async function fetchWorkOrder() {
   isLoading.value = true
 
-  const today = new Date();
-  const dateAfter = new Date(today);
-  dateAfter.setDate(today.getDate() - 15);
+  // const today = new Date();
+  // const dateAfter = new Date(today);
+  // dateAfter.setDate(today.getDate() - 15);
   const response = await fetch('/api/vista/work-order-search', {
       method: 'POST',
       body: JSON.stringify({
         filterObj: [
           {
-            value: convertDate(dateAfter),
-            propertyName: 'RequestedDate',
-            operator: 'GreaterThan'
+            propertyName: 'ScopeDetails[0].CallType',
+            value: 'to be quot',
+            operator: 'Contains'
           },
           {
-            propertyName: 'Description',
-            value: 'to be quoted',
+            propertyName: 'ScopeDetails[0].ServiceCenter',
+            value: 'com',
             operator: 'Contains'
           },
         ]

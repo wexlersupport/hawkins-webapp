@@ -26,6 +26,19 @@
                 </div>
                 <div class="pb-4">
                     <UFormField
+                        name="ServiceCenter"
+                        label="Service Center:"
+                    >
+                        <UInput
+                        v-model="item.content.ServiceCenter"
+                        autocomplete="off"
+                        variant="subtle"
+                        readonly
+                        />
+                    </UFormField>
+                </div>
+                <div class="pb-4">
+                    <UFormField
                         name="WorkScope"
                         label="Work Scope:"
                     >
