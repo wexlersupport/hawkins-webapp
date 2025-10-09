@@ -163,7 +163,7 @@
             }
             const result = pdfExtracted.value.slice(indexMaterial + 1, indexEstimatedTime).join(' ');
             console.log('Extracted Material Section:', result);
-            search_value = result.split(/,(?![^(]*\))/).map((s: string) => s.trim());
+            search_value = result.split(/,(?![^(]*\))/).map((s: string) => s.trim()).filter((s: string) => s.length > 0);
             console.log('search_value:', search_value);
         }
         if (!search_value || search_value.length === 0) {
