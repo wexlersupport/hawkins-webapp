@@ -12,10 +12,10 @@ const colors = ['red', 'orange', 'amber', 'yellow', 'lime', 'green', 'emerald', 
 const neutrals = ['slate', 'gray', 'zinc', 'neutral', 'stone']
 
 const user = ref({
-  name: 'Francis Regala',
+  name: 'Connor Shatzer',
   avatar: {
     src: 'https://github.com/benjamincanac.png',
-    alt: 'Francis Regala'
+    alt: 'Connor Shatzer'
   }
 })
 

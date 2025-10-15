@@ -303,33 +303,6 @@
         }
     })
 
-    // async function onComposeEmailModal() {
-    //     sendEmailModal.value.onModalOpen()
-
-        // const formData = new FormData();
-        // if (uploadedFile.value && uploadedFile.value.length > 0) {
-        //     Array.from(uploadedFile.value).forEach((item: any, index: number) => {
-        //         formData.append('quote_'+work_order_id+"_"+index, item);
-        //     });
-        //     console.log('Form data prepared with file:', formData);
-        // } else {
-        //     console.error('No file selected');
-        // }
-
-        // const response = await fetch('/api/sendgrid/upload-files', {
-        //     method: 'POST',
-        //     body: formData
-        // })
-        // const upload_files_res = await response.json()
-        // console.log('upload_files_res ', upload_files_res)
-    // }
-
-    // const uploadedFile: any = ref([]);
-    // async function handlefileChange(event: any) {
-    //     uploadedFile.value = event.target.files;
-    //     console.log('File selected:', uploadedFile.value);
-    // }
-
     const sendPostgreRequest = async (item: string, name: string, cost: number) => {
         return handleApiResponse(
             $fetch('/api/postgre', {
@@ -444,7 +417,8 @@
     async function onUpdateMaterials(product: any) {
         materialCostsRef.value?.mat_cost_items.push({
             name: product.name,
-            cost: Number(product.cost) * Number(product.quantity),
+            // cost: Number(product.cost) * Number(product.quantity),
+            cost: Number(product.totalCost),
         })
 
         toast.add({
@@ -512,7 +486,9 @@
                         </div>
                     </div>
 
-                    <UiModalMaterials ref="materialsModalRef" v-if="!isLoading"
+                    <!-- <UiModalMaterials ref="materialsModalRef" v-if="!isLoading"
+                        @on-update-materials="onUpdateMaterials" /> -->
+                    <UiModalMaterialsSearch ref="materialsModalRef" v-if="!isLoading"
                         @on-update-materials="onUpdateMaterials" />
                 </template>
 

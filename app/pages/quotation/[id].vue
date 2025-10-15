@@ -362,7 +362,8 @@
     async function onUpdateMaterials(product: any) {
         materialCostsRef.value?.mat_cost_items.push({
             name: product.name,
-            cost: Number(product.cost) * Number(product.quantity),
+            // cost: Number(product.cost) * Number(product.quantity),
+            cost: Number(product.totalCost),
         })
 
         toast.add({
@@ -444,7 +445,9 @@
                         </div>
                     </div>
 
-                    <UiModalMaterials ref="materialsModalRef" v-if="!isLoading"
+                    <!-- <UiModalMaterials ref="materialsModalRef" v-if="!isLoading"
+                        @on-update-materials="onUpdateMaterials" /> -->
+                    <UiModalMaterialsSearch ref="materialsModalRef" v-if="!isLoading"
                         @on-update-materials="onUpdateMaterials" />
                 </template>
 

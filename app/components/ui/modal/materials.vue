@@ -115,14 +115,14 @@
             />
             <div v-if="filteredRows.length > 0 && !isLoading"
                 class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-2 py-2">
-                <UCard class="text-center my-2" v-for="(product, index) in filteredRows" :key="index"
-                    :ui="{ header: 'p-2 min-h-[75px]', footer: 'p-2', body: 'p-2 sm:p-4 min-h-[340px]' }">
+                <UCard class="text-center my-1" v-for="(product, index) in filteredRows" :key="index"
+                    :ui="{ header: 'p-1 bg-gray-100 dark:bg-gray-800', footer: 'p-1', body: 'p-1 sm:p-4' }">
                     <template #header>
                         <h3 class="text-lg font-semibold">{{ product.name }}</h3>
                     </template>
 
                     <div class="space-y-4">
-                        <div class="relative w-full h-48 overflow-hidden rounded-md bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                        <!-- <div class="relative w-full h-48 overflow-hidden rounded-md bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                             <img
                                 :src="product.imageUrl"
                                 :alt="product.name"
@@ -130,8 +130,8 @@
                                 v-if="product.imageUrl"
                             />
                             <UIcon name="i-heroicons-photo" class="text-6xl text-gray-400 dark:text-gray-500" v-else />
-                        </div>
-                        <p class="text-gray-700 dark:text-gray-300">{{ product.description }}</p>
+                        </div> -->
+                        <p class="text-gray-700 dark:text-gray-500" v-if="product.description">{{ product.description }}</p>
                         <div class="flex items-center justify-center space-x-6">
                             <UInput
                                 v-model.number="product.quantity"
@@ -140,18 +140,18 @@
                                 placeholder="Qty"
                                 class="w-20"
                             />
-                            <span class="text-xl font-bold text-primary-500 dark:text-primary-400">${{ (Number(product.cost) * Number(product.quantity)).toFixed(2) }}</span>
+                            <span class="text-xl font-bold">${{ (Number(product.cost) * Number(product.quantity)).toFixed(2) }}</span>
                         </div>                        
                     </div>
 
                     <template #footer>
-                        <div class="text-gray-500 dark:text-gray-400 py-1 gap-x-2 flex items-center justify-center">
+                        <div class="py-1 gap-x-2 flex items-center justify-center">
                             <UButton
-                                class="cursor-pointer"
+                                class="cursor-pointer text-gray-300"
                                 icon="i-heroicons-shopping-cart"
                                 label="Add to Material Costs"
                                 color="neutral"
-                                variant="solid"
+                                variant="outline"
                                 @click="addToMaterialCosts(product)"
                             />
                             <UTooltip arrow text="Edit item">
