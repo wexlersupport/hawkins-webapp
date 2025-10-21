@@ -21,7 +21,7 @@
 
     const created_at = formatJsDateToDatetime(new Date())
     const quotation_id = ref<any>(null)
-    const material_list = ref<any>(null)
+    // const material_list = ref<any>(null)
     const work_completed = ref<any>(null)
     const pdfExtracted = ref<any>(null)
     const canvasRef = ref(null)
@@ -41,8 +41,8 @@
 
         const { response } = await fetchWorkOrderId()
         workOrderDetail.value = response
-        material_list.value = await fetchMaterials()
-        console.log('Material List: ', material_list.value)
+        // material_list.value = await fetchMaterials()
+        // console.log('Material List: ', material_list.value)
         const { response: res } = await fetchWorkCompleted()
         work_completed.value = res?.data || []
         console.log('Work Completed: ', work_completed.value)
