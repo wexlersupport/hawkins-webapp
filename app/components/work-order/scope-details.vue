@@ -18,6 +18,7 @@
                     >
                         <UInput
                             v-model="item.content.CallType"
+                            value="To Be Quoted"
                             autocomplete="off"
                             variant="subtle"
                             readonly

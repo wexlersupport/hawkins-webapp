@@ -20,6 +20,21 @@ onMounted(async () => {
   const { response } = await fetchWorkOrder()
   // console.log(response)
   workOrderData.value = response?.data?.sort((a: any, b: any) => new Date(b?.__modifiedUTC).getTime() - new Date(a?.__modifiedUTC).getTime());
+  if (!workOrderData.value?.some((item: any) => item?.WorkOrder === 124730)) {
+    const { response: newResponse } = await fetchWorkOrderNew(124730)
+    workOrderData.value.unshift(...newResponse?.data)
+  }
+
+  if (!workOrderData.value?.some((item: any) => item?.WorkOrder === 124861)) {
+    const { response: newResponse1 } = await fetchWorkOrderNew(124861)
+    workOrderData.value.unshift(...newResponse1?.data)
+  }
+
+  if (!workOrderData.value?.some((item: any) => item?.WorkOrder === 124968)) {
+    const { response: newResponse1 } = await fetchWorkOrderNew(124968)
+    workOrderData.value.unshift(...newResponse1?.data)
+  }
+
   isLoading.value = false
   // console.log(workOrderData.value)
   // console.log('table ', table.value?.tableApi?.getColumn('WorkOrder'))
@@ -28,6 +43,23 @@ onMounted(async () => {
   // const uniqueArray = [...new Set(WOStatus)]; 
   // console.log('Unique WOStatus:', uniqueArray)
 })
+
+async function fetchWorkOrderNew(value: any) {
+   const response = await fetch('/api/vista/work-order-search', {
+      method: 'POST',
+      body: JSON.stringify({
+        filterObj: [
+          {
+            propertyName: 'WorkOrder',
+            value,
+            operator: 'Equal'
+          },
+        ]
+      })
+  })
+  const res = await response.json()
+  return res
+}
 
 async function fetchWorkOrder() {
   isLoading.value = true
@@ -48,7 +80,7 @@ async function fetchWorkOrder() {
             propertyName: 'ScopeDetails[0].ServiceCenter',
             value: 'com',
             operator: 'Contains'
-          },
+          }
         ]
       })
   })
