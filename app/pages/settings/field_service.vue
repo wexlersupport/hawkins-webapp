@@ -31,8 +31,9 @@ async function onSubmit(event: FormSubmitEvent<LoginSchema>) {
 
   const config_all: any = data.value?.data
   const res = await fetchFieldServiceLogin()
+  // console.log('Field Service Login Response:', res)
 
-  if (res?.cookies?.length > 0) {
+  if (res?.cookies?.length > 0 && res?.response?.success) {
       const fs_cookie = config_all?.find((item: any) => item.config_key === 'fs_cookie')
       if (res?.cookies[1]) {
           const update_fs_cookie = await handleApiResponse($fetch('/api/postgre/'+fs_cookie.id, {
@@ -69,7 +70,7 @@ async function onSubmit(event: FormSubmitEvent<LoginSchema>) {
   } else {
       toast.add({
           title: 'Error',
-          description: `Field Service login failed!`,
+          description: `Field Service login failed! Please confirm your information and retry.`,
           color: 'error'
       })
   }
