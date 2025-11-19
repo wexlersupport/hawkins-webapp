@@ -57,14 +57,14 @@
             cost: item.cost ? `$${Number(item.cost).toFixed(2)}` : "0"
         })) ?? [];
         total.value = res.total ?? 0;
-        console.log("Fetched material data:", materialData.value, total.value);
+        // console.log("Fetched material data:", materialData.value, total.value);
 
         isLoading.value = false;
     });
 
     const filteredRows = computed(() => {
-        console.log('Filtered rows search:', search.value, isSearching.value)
-        console.log('Filtered materialData.value:', materialData.value)
+        // console.log('Filtered rows search:', search.value, isSearching.value)
+        // console.log('Filtered materialData.value:', materialData.value)
 
         if (isSearching.value) {
             return materialData.value;
