@@ -45,6 +45,11 @@
         <span v-if="isLoading">Uploading...</span>
         <span v-else>Upload and Save</span>
       </button>
+      <h6 class="text-sm font-semibold mt-2">
+        <a href="https://docs.google.com/spreadsheets/d/1arFLI_7nceBGjK6Ogmig83xMFbVpnCUa/edit?usp=drive_link&ouid=105720207151673374339&rtpof=true&sd=true" target="_blank" class="hover:underline">
+          Click here to show the format of excel file for material data
+        </a>
+      </h6>
     </form>
 
     <UiAppLoading

@@ -11,19 +11,21 @@ const teams = ref([{
     src: 'https://website-media.com/hawkins-electric-services/hawkins-electric-2025/2024/06/21150741/cropped-Tigerhive_favicon_red-240x240-1-192x192-1-150x150.png',
     alt: 'Nuxt'
   }
-}, {
-  label: 'NuxtHub',
-  avatar: {
-    src: 'https://github.com/nuxt-hub.png',
-    alt: 'NuxtHub'
-  }
-}, {
-  label: 'NuxtLabs',
-  avatar: {
-    src: 'https://github.com/nuxtlabs.png',
-    alt: 'NuxtLabs'
-  }
-}])
+},
+// {
+//   label: 'NuxtHub',
+//   avatar: {
+//     src: 'https://github.com/nuxt-hub.png',
+//     alt: 'NuxtHub'
+//   }
+// }, {
+//   label: 'NuxtLabs',
+//   avatar: {
+//     src: 'https://github.com/nuxtlabs.png',
+//     alt: 'NuxtLabs'
+//   }
+// }
+])
 const selectedTeam = ref(teams.value[0])
 
 const items = computed<DropdownMenuItem[][]>(() => {
@@ -32,13 +34,15 @@ const items = computed<DropdownMenuItem[][]>(() => {
     onSelect() {
       selectedTeam.value = team
     }
-  })), [{
-    label: 'Create team',
-    icon: 'i-lucide-circle-plus'
-  }, {
-    label: 'Manage teams',
-    icon: 'i-lucide-cog'
-  }]]
+  })),
+  // [{
+  //   label: 'Create team',
+  //   icon: 'i-lucide-circle-plus'
+  // }, {
+  //   label: 'Manage teams',
+  //   icon: 'i-lucide-cog'
+  // }]
+]
 })
 </script>
 

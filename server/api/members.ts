@@ -9,8 +9,8 @@ const members = [{
   role: 'member',
   avatar: { src: 'https://ipx.nuxt.com/f_auto,s_192x192/gh_avatar/larbish' }
 }, {
-  name: 'Connor Shatzer',
-  username: 'ConnorShatzer',
+  name: 'Hawkins Employee',
+  username: 'HawkinsEmployee',
   role: 'owner',
   avatar: { src: 'https://ipx.nuxt.com/f_auto,s_192x192/gh_avatar/benjamincanac' }
 }, {

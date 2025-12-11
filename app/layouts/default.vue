@@ -6,14 +6,15 @@ const toast = useToast()
 
 const open = ref(false)
 
-const links = [[{
-  label: 'Home',
-  icon: 'i-lucide-house',
-  to: '/',
-  onSelect: () => {
-    open.value = false
-  }
-},
+const links = [[
+  {
+    // label: 'Home',
+    // icon: 'i-lucide-house',
+    // to: '/',
+    // onSelect: () => {
+    //   open.value = false
+    // }
+  },
 {
   label: 'Work Order',
   icon: 'i-material-symbols-lists',
@@ -156,7 +157,7 @@ onMounted(async () => {
       </template>
 
       <template #default="{ collapsed }">
-        <UDashboardSearchButton :collapsed="collapsed" class="bg-transparent ring-default" />
+        <!-- <UDashboardSearchButton :collapsed="collapsed" class="bg-transparent ring-default" /> -->
 
         <UNavigationMenu
           :collapsed="collapsed"

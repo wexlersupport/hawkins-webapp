@@ -5,6 +5,10 @@
 
   const { isNotificationsSlideoverOpen } = useDashboard()
 
+  onMounted(async () => {
+    navigateTo('/work-order')
+  })
+
   const items = [[{
     label: 'New mail',
     icon: 'i-lucide-send',
@@ -25,7 +29,7 @@
 <template>
   <UDashboardPanel id="home">
     <template #header>
-      <UDashboardNavbar title="Home" :ui="{ right: 'gap-3' }">
+      <!-- <UDashboardNavbar title="Home" :ui="{ right: 'gap-3' }">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
@@ -52,18 +56,17 @@
 
       <UDashboardToolbar>
         <template #left>
-          <!-- NOTE: The `-ms-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
           <HomeDateRangePicker v-model="range" class="-ms-1" />
 
           <HomePeriodSelect v-model="period" :range="range" />
         </template>
-      </UDashboardToolbar>
+      </UDashboardToolbar> -->
     </template>
 
     <template #body>
-      <HomeStats :period="period" :range="range" />
+      <!-- <HomeStats :period="period" :range="range" />
       <HomeChart :period="period" :range="range" />
-      <HomeSales :period="period" :range="range" />
+      <HomeSales :period="period" :range="range" /> -->
     </template>
   </UDashboardPanel>
 </template>
