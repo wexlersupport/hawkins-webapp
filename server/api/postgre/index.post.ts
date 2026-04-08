@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
         const query = `INSERT INTO ${table} (${quotedFields.join(", ")})
                 VALUES (${placeholders}) RETURNING *`;
         // console.log('query ', query)
-        const [data] = await sql(query, values);
+        const [data] = await sql.query(query, values);
 
         return data;
     } catch (error: any) {

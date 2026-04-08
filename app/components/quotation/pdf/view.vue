@@ -250,7 +250,7 @@ const generatePdf = () => {
             body: [
               // Header Row
               [
-                { text: "EXCLUSIONS", colSpan: 3, style: "exclusionHeader" },
+                { text: "Standard Exclusions as Applicable", colSpan: 3, style: "exclusionHeader" },
                 {},
                 {},
               ],
@@ -258,32 +258,32 @@ const generatePdf = () => {
               [
                 { text: "Third party inspection fees", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
                 { text: "Low voltage/control devices and wiring", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
-                { text: "Asbestos/lead paint abatement", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
+                { text: "Exhaust fan ducting", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
               ],
               [
                 { text: "Overtime or after-hours work", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
-                { text: "Excavating, backfilling, and resurfacing", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
-                { text: "Fireproofing", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
+                { text: "Excavating, backfilling, hard rock excavating, resurfacing", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
+                { text: "Asbestos/lead paint abatement", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
               ],
               [
                 { text: "Wage scale", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
                 { text: "Utility company fees", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
-                { text: "Access doors", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
+                { text: "Fireproofing", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
               ],
               [
                 { text: "Bonds", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
                 { text: "Engineered drawing/stamp fees", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
-                { text: "Core drilling or scanning", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
+                { text: "Access doors", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
               ],
               [
                 { text: "Patching, painting or caulking", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
                 { text: "Phasing and additional mobilization", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
-                { text: "Arc-fault circuit breakers if required", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
+                { text: "Core drilling or scanning", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
               ],
               [
                 { text: "Fire alarm work", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
                 { text: "Electrical permit", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
-                {},
+                { text: "Arc-fault circuit breakers if required", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
               ],
             ],
           },
@@ -333,11 +333,11 @@ const generatePdf = () => {
               // Data Rows
               [
                 { text: "1.", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
-                { text: "Any electrical work in addition to the above stated scope of work or the repair of any existing code deficiencies that are required by the inspector or governing body will be billed on a time and material basis at the labor rate of $140.00 per hour per electrician and $70.00 per hour per helper.", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
+                { text: "Any electrical work in addition to the above stated scope of work or the repair of any existing code deficiencies that are required by the inspector or governing body will be billed on a time and material basis.", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
               ],
               [
                 { text: "2.", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
-                { text: "This proposal is based on all work being performed during normal working hours of 7:30 am to 4:00 pm, Monday through Friday, except holidays.", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
+                { text: "This proposal is based on all work being performed during normal working hours, Monday through Friday, except holidays.", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
               ],
               [
                 { text: "3.", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
@@ -346,11 +346,11 @@ const generatePdf = () => {
 
               [
                 { text: "4.", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
-                { text: "Exhaust fan units to be provided, installed, and vented by others.", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
+                { text: "Hawkins Electric is not responsible for any damage due to unmarked or mismarked underground utility lines by Miss Utility or the owner’s representative.", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
               ],
               [
-                { text: "5.", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
-                { text: "Hawkins Electric is not responsible for any damage due to unmarked or mismarked underground utility lines by Miss Utility or the owner’s representative.", style: { fontSize: 8, color: "gray" }, margin: [10,0,0,0]},
+                {},
+                {},
               ]
             ],
           },
@@ -377,7 +377,7 @@ const generatePdf = () => {
       }
     },
     {
-      text: "This proposal is valid for 10 calendar days, after which it is subject to revision or withdrawal. Payable as work progresses, with no retention. Invoices will be due and payable within 30 days of the submission. Past due invoices are subject to late charges at the rate of 2% per month, plus attorney fees and court costs, if necessary, for collection.",
+      text: "This proposal is valid for 20 calendar days, after which it is subject to revision or withdrawal. Payable as work progresses, with no retention. Invoices will be due and payable within 30 days of the submission. Past due invoices are subject to late charges at the rate of 2% per month, or the maximum legal rate if lower, plus attorney fees and court costs, if necessary, for collection.",
       style: {
         fontSize: 8,
         color: "gray"
@@ -435,8 +435,8 @@ const generatePdf = () => {
                 {
                   stack: [
                     { text: "Hawkins Electric Service, Inc." },
-                    { text: "Scott Stauffer" },
-                    { text: "Commercial Service Manager" },
+                    { text: "_", style: { color: "#fff" }},
+                    { text: "Commercial Service Team/Estimating" },
                   ],
                 },
               ]

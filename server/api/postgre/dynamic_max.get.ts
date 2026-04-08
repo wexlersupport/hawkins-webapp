@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
         }
 
         const query = `SELECT MAX(${dynamic_field}) FROM ${table}`
-        const rows: any = await sql(query);
+        const rows: any = await sql.query(query);
         // console.log('rows ', rows)
 
         if (rows.length === 0) {

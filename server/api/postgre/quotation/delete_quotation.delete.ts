@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
           WHERE ${dynamic_field} IN (${value})
           RETURNING *
         `;
-        const deletedItem = await sql(query);
+        const deletedItem = await sql.query(query);
         // console.log('deletedItem ', deletedItem)
 
         if (!deletedItem) {

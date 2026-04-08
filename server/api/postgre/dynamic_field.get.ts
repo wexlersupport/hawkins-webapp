@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
         }
 
         const query = `SELECT * FROM ${table} WHERE ${dynamic_field} = $1`
-        const rows = await sql(query, [value]);
+        const rows = await sql.query(query, [value]);
         // console.log('rows ', rows)
 
         if (!rows) {

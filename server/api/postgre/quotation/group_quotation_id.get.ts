@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
       FROM ${table}
       GROUP BY quotation_id, work_order_id
       ORDER BY quotation_id DESC`;
-    const data = await sql(query);
+    const data = await sql.query(query);
     // console.log('data ', data)
 
     return { data };

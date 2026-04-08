@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
         WHERE name ILIKE '%${search_term}%' OR description ILIKE '%${search_term}%' OR sku ILIKE '%${search_term}%'
         ORDER BY id ${isDesc ? 'DESC' : 'ASC'}
         LIMIT 1000`;
-    const data = await sql(query);
+    const data = await sql.query(query);
     // console.log('data ', data)
 
     return { data };

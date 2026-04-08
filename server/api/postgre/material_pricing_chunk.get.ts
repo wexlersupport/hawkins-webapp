@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
       ? [...params, _limit, offset]
       : [_limit, offset]
 
-    const rows = await sql(rowsQuery, rowsParams)
+    const rows = await sql.query(rowsQuery, rowsParams)
 
     // --- Total count
     let countQuery = `
@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
       FROM materials
       ${whereClause}
     `
-    const [{ count }] = await sql(countQuery, params)
+    const [{ count }] = await sql.query(countQuery, params)
 
     return { data: rows, total: Number(count) }
   } catch (error) {

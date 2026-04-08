@@ -15,7 +15,7 @@
         content?: string,
     }
     const emailObj = reactive<EmailObj>({
-        from: 'francis.regala@strattonstudiogames.com',
+        from: 'Hawkins Electric <csr@hawkinselectric.com>',
         to: '',
         subject: 'Test Subject',
         html: `<p>Hi,</p><p><br></p><p>You have a new generated quotation available. Please see attached file for more details.</p><p><br></p><p>If you wish to edit the generated pdf quote, click link below.</p><p><a href="https://hawkins-webapp.netlify.app/" rel="noopener noreferrer" target="_blank">Hawkins Electric Web Application Link</a></p><p><br></p><p>Thank you.</p>`,
@@ -45,8 +45,24 @@
         open.value = true
     }
 
+    function addressFromFromField(value: string) {
+        const trimmed = value.trim()
+        const lt = trimmed.lastIndexOf('<')
+        const gt = trimmed.lastIndexOf('>')
+        if (lt !== -1 && gt > lt) {
+            return trimmed.slice(lt + 1, gt).trim()
+        }
+        return trimmed
+    }
+
     const schema = v.object({
-        from: v.pipe(v.string(), v.email('Invalid email')),
+        from: v.pipe(
+            v.string(),
+            v.check(
+                (input) => v.safeParse(v.pipe(v.string(), v.email()), addressFromFromField(input)).success,
+                'Invalid email'
+            )
+        ),
         to: v.pipe(v.string(), v.email('Invalid email')),
         subject: v.pipe(v.string(), v.minLength(2, 'Must be at least 2 characters'))
     })

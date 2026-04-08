@@ -1,4 +1,6 @@
 <script setup lang="ts">
+    import { fetchFieldServiceAttachmentsList, processUrl } from '@/utils/process_pdf_url'
+
     const toast = useToast()
     const route = useRoute()
     const quotationId = route.params.id as string
@@ -18,6 +20,7 @@
     const subcon_cost = ref<any[]>([])
     const labor_cost = ref<any[]>([])
     const extraDeductMoney = ref<any>(0)
+    const scopeOfWorkText = ref<string>('')
     const toastDuration = ref<Number>(3000)
     const final_price = ref<number>(0)
     const updated_at = formatJsDateToDatetime(new Date())
@@ -25,12 +28,26 @@
     const query = { table: 'quotation_details' }
     const material_list = ref<any>(null)
     const work_completed = ref<any>(null)
+    const getScopeOfWorkStorageKey = () => `work-order-quotation-scope-${work_order_id.value}`
+    const canvasRef = ref(null)
+    const { data: configData } = await useFetch('/api/postgre', {
+        query: { table: 'configuration' }
+    })
+    const config_all = ref<any>(configData.value?.data)
 
     onMounted(async () => {
         isLoading.value = true
         material_list.value = await fetchMaterials()
         quotationDetails.value = await fetchQuotationId()
         work_order_id.value = quotationDetails.value?.data[0].work_order_id ?? 0
+        if (typeof window !== 'undefined') {
+            const storedScopeOfWork = localStorage.getItem(getScopeOfWorkStorageKey())
+            if (storedScopeOfWork !== null) {
+                scopeOfWorkText.value = storedScopeOfWork
+            } else {
+                await onLoadScopeOfWorkFromPdfText()
+            }
+        }
 
         const existing_costs = quotationDetails.value?.data.filter((d: any) => d.item === 'mat_cost' || d.item === 'misc_cost')
         
@@ -93,6 +110,47 @@
         }));
 
         return data
+    }
+
+    async function fetchFieldService() {
+        const fs_cookie = config_all.value?.find((item: any) => item.config_key === 'fs_cookie')
+
+        const response = await fetch('/api/vista/field_service/work_order_trips', {
+            method: 'POST',
+            body: JSON.stringify({
+                fs_cookie: fs_cookie?.config_value
+            })
+        })
+        const res = await response.json()
+        return res
+    }
+
+    async function onLoadScopeOfWorkFromPdfText() {
+        const { response: fs_data } = await fetchFieldService()
+        if (!fs_data || !fs_data[0]?.WorkOrder) return
+
+        const fs_workorder = fs_data?.find((item: any) => item.WorkOrder === Number(work_order_id.value))
+        if (!fs_workorder) return
+
+        const { response: fs_attachments_list } = await fetchFieldServiceAttachmentsList(fs_workorder, config_all.value)
+        if (!fs_attachments_list || fs_attachments_list.length === 0) return
+
+        const fs_attachment = fs_attachments_list?.find((item: any) => {
+            return item?.AttachmentFileName.includes('Service Quote') || item?.AttachmentFileName.includes('Service_Quote') || item?.Description.includes('Service Quote') || item?.Description.includes('Service_Quote')
+        })
+        if (!fs_attachment) return
+
+        const pdf_text = await processUrl(fs_attachment, canvasRef.value, config_all.value)
+        if (!pdf_text || pdf_text.length === 0) return
+
+        const scope_of_info_index = pdf_text?.findIndex((item: string) => item.includes('Scope Information') || item.includes('Scope of quote')) || 0
+        const material_index = pdf_text?.findIndex((item: string) => item.includes('Material')) || 0
+        const scopeLines = (pdf_text?.slice(scope_of_info_index + 1, material_index) ?? [])
+            .filter((item: string) => item.trim() !== '')
+        scopeOfWorkText.value = scopeLines?.join(' ')
+        if (scopeOfWorkText.value?.includes('Scope of quoted work')) {
+            scopeOfWorkText.value = scopeOfWorkText.value?.replace('Scope of quoted work', '').trim() || ''
+        }
     }
 
     async function onAutoGenerateMaterials() {
@@ -230,6 +288,9 @@
 
     async function onSave() {
         isLoadingSave.value = true
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(getScopeOfWorkStorageKey(), scopeOfWorkText.value || '')
+        }
 
         const mat_promises = await onMatCostSave()
         const misc_promises = await onMiscCostSave()
@@ -413,6 +474,7 @@
             </div>
             <UCard :ui="{ root: 'rounded-lg overflow-y-auto' }">
                 <template #default>
+                    <canvas ref="canvasRef" class="hidden"></canvas>
                     <UiAppLoading
                         v-if="isLoading"
                         class="border rounded-md p-6 my-4 border-neutral-800"
@@ -440,6 +502,19 @@
                                     size="sm"
                                     placeholder="Extra Deduct Money"
                                     autocomplete="off"
+                                />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-4 text-neutral-400">
+                            <div class="text-right text-nowrap pr-3 italic pt-1">
+                                <div>Scope of Work:</div>
+                            </div>
+                            <div class="col-span-3">
+                                <UTextarea
+                                    v-model="scopeOfWorkText"
+                                    placeholder="Enter scope of work..."
+                                    :rows="3"
+                                    class="w-full"
                                 />
                             </div>
                         </div>

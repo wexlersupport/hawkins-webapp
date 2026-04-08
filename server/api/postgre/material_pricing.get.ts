@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const sql = neon(); // automatically uses env NETLIFY_DATABASE_URL
   try {
     const query = `SELECT * FROM ${table} WHERE category = 'miscellaneous' ORDER BY id ${isDesc ? 'DESC' : 'ASC'} LIMIT 100000`;
-    const data = await sql(query);
+    const data = await sql.query(query);
     // console.log('data ', data)
 
     return { data };

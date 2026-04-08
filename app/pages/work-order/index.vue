@@ -25,15 +25,15 @@ onMounted(async () => {
     workOrderData.value.unshift(...newResponse?.data)
   }
 
-  if (!workOrderData.value?.some((item: any) => item?.WorkOrder === 124861)) {
-    const { response: newResponse1 } = await fetchWorkOrderNew(124861)
-    workOrderData.value.unshift(...newResponse1?.data)
-  }
+  // if (!workOrderData.value?.some((item: any) => item?.WorkOrder === 124861)) {
+  //   const { response: newResponse1 } = await fetchWorkOrderNew(124861)
+  //   workOrderData.value.unshift(...newResponse1?.data)
+  // }
 
-  if (!workOrderData.value?.some((item: any) => item?.WorkOrder === 124968)) {
-    const { response: newResponse1 } = await fetchWorkOrderNew(124968)
-    workOrderData.value.unshift(...newResponse1?.data)
-  }
+  // if (!workOrderData.value?.some((item: any) => item?.WorkOrder === 124968)) {
+  //   const { response: newResponse1 } = await fetchWorkOrderNew(124968)
+  //   workOrderData.value.unshift(...newResponse1?.data)
+  // }
 
   isLoading.value = false
   // console.log(workOrderData.value)

@@ -14,6 +14,7 @@
     const subscontractCostsRef = ref<any>(null)
     const biddingPriceRef = ref<any>(null)
     const extraDeductMoney = ref<number>(0)
+    const scopeOfWorkText = ref<string>('')
     // const sendEmailModal = ref<any>(null)
     const materialsModalRef = ref<any>(null)
     const material_items = ref<any[]>([])
@@ -26,6 +27,7 @@
     const pdfExtracted = ref<any>(null)
     const canvasRef = ref(null)
     const query = { table: 'quotation_details' }
+    const scopeOfWorkStorageKey = `work-order-quotation-scope-${work_order_id}`
 
     const { data } = await useFetch('/api/postgre', {
         query: { table: 'configuration' }
@@ -108,6 +110,24 @@
                                 cost
                             }
                         ]
+
+                        const storedScopeOfWork = typeof window !== 'undefined'
+                            ? localStorage.getItem(scopeOfWorkStorageKey)
+                            : null
+
+                        if (storedScopeOfWork !== null) {
+                            scopeOfWorkText.value = storedScopeOfWork
+                        } else {
+                            const scope_of_info_index = pdf_text?.findIndex((item: string) => item.includes('Scope Information') || item.includes('Scope of quote')) || 0
+                            const material_index = pdf_text?.findIndex((item: string) => item.includes('Material')) || 0
+                            const scopeLines = (pdf_text?.slice(scope_of_info_index + 1, material_index) ?? [])
+                                .filter((item: string) => item.trim() !== '')
+                            scopeOfWorkText.value = scopeLines?.join(' ')
+                            if (scopeOfWorkText.value?.includes('Scope of quoted work')) {
+                                scopeOfWorkText.value = scopeOfWorkText.value?.replace('Scope of quoted work', '').trim() || ''
+                            }
+                        }
+                        console.log('Field Service scopeOfWorkText: ', scopeOfWorkText.value)
                     } else {
                         const cost = fs_workorder.EstimatedDuration + (fs_workorder.ScopeData ? fs_workorder.ScopeData[0]?.SummaryLaborHours : 0)
                         labor_cost.value = [
@@ -303,7 +323,7 @@
         }
     })
 
-    const sendPostgreRequest = async (item: string, name: string, cost: number) => {
+    const sendPostgreRequest = async (item: string, name: string, cost: number | string) => {
         return handleApiResponse(
             $fetch('/api/postgre', {
                 query,
@@ -317,6 +337,10 @@
     };
 
     async function onSave() {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(scopeOfWorkStorageKey, scopeOfWorkText.value || '')
+        }
+
         isLoadingSave.value = true
         const { data }: any = await useFetch('/api/postgre/dynamic_max', {
             query: {
@@ -481,6 +505,19 @@
                                     size="sm"
                                     placeholder="Extra Deduct Money"
                                     autocomplete="off"
+                                />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-4 text-neutral-400">
+                            <div class="text-right text-nowrap pr-3 italic pt-1">
+                                <div>Scope of Work:</div>
+                            </div>
+                            <div class="col-span-3">
+                                <UTextarea
+                                    v-model="scopeOfWorkText"
+                                    placeholder="Enter scope of work..."
+                                    :rows="3"
+                                    class="w-full"
                                 />
                             </div>
                         </div>

@@ -63,6 +63,11 @@
                         // console.log('Field Service material_index: ', material_index)
                         scope_work.value = pdf_text?.slice(scope_of_info_index + 1, material_index).filter((item: any) => item.trim() !== "") || ''
                         scope_work.value = scope_work.value.join(' ') || ''
+                        const scope_work_storage_key = `work-order-quotation-scope-${work_order_id}`
+                        const saved_scope_work = localStorage.getItem(scope_work_storage_key)
+                        if (saved_scope_work !== null) {
+                            scope_work.value = saved_scope_work
+                        }
                         if (scope_work.value?.includes('Scope of quoted work')) {
                             scope_work.value = scope_work.value?.replace('Scope of quoted work', '').trim()
                         }

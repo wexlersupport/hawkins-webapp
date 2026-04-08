@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
           WHERE ${dynamic_field} = ${value}
           RETURNING *
         `;
-        const result = await sql(query, values);
+        const result = await sql.query(query, values);
         // console.log('result ', result)
 
         if (result.length === 0) {

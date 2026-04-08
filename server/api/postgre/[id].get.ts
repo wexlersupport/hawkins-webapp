@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
         }
 
         const query = `SELECT * FROM ${table} WHERE id = $1`
-        const rows = await sql(query, [id]);
+        const rows = await sql.query(query, [id]);
         // console.log('rows ', rows)
 
         if (rows.length === 0) {
