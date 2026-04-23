@@ -89,12 +89,17 @@
                         
                         const number_helper = pdf_text?.slice(number_helper_index + 1, hours_to_complete_index - 1).join('') || ''
                         // console.log('Field Service number_helper: ', number_helper)
-                        let number_helper_lastdigit: any = number_helper.match(/\d+(?=\D*$)/) || [1];
+                        let number_helper_lastdigit: any = number_helper.match(/\d+(?=\D*$)/) || [0];
                         number_helper_lastdigit = Number(number_helper_lastdigit[0])
                         console.log('Field Service number_helper_lastdigit: ', number_helper_lastdigit)
 
-                        const hours_to_complete = pdf_text?.slice(hours_to_complete_index + 1, page_number_index - 1).join('') || ''
+                        let hours_to_complete = pdf_text?.slice(hours_to_complete_index + 1, page_number_index - 1).join('') || ''
                         console.log('Field Service hours_to_complete: ', hours_to_complete)
+                        if (hours_to_complete.trim().length === 0) {
+                            hours_to_complete = pdf_text?.slice(hours_to_complete_index, page_number_index).join('') || ''
+                        }
+                        console.log('hours_to_complete2:', hours_to_complete);
+
                         let hours_to_complete_lastdigit: any = hours_to_complete.match(/\d+(?=\D*$)/) || [1];
                         hours_to_complete_lastdigit = Number(hours_to_complete_lastdigit[0])
                         if (hours_to_complete.includes('DAY') || hours_to_complete.includes('Day') || hours_to_complete.includes('day')) {
